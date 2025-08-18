@@ -1,7 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { LucideIcon } from "lucide-react"
-import { cn } from "@/lib/utils"
 
 interface MetricCardProps {
   title: string
@@ -10,30 +9,34 @@ interface MetricCardProps {
   changeType: "increase" | "decrease" | "neutral"
   icon: LucideIcon
   subtitle?: string
+  onClick?: () => void; // Added for interactivity
 }
 
+// THIS IS A NAMED EXPORT
 export function MetricCard({ 
   title, 
   value, 
   change, 
   changeType, 
   icon: Icon, 
-  subtitle 
+  subtitle,
+  onClick
 }: MetricCardProps) {
-  const changeColor = {
-    increase: "text-success",
-    decrease: "text-destructive", 
-    neutral: "text-muted-foreground"
-  }[changeType]
-
   const badgeVariant = {
     increase: "default" as const,
     decrease: "destructive" as const,
     neutral: "secondary" as const
   }[changeType]
 
+  const isClickable = !!onClick;
+
   return (
-    <Card className="hover:shadow-md transition-shadow duration-200">
+    <Card 
+      onClick={onClick}
+      className={`transition-shadow duration-200 ${
+        isClickable ? 'cursor-pointer hover:shadow-lg hover:border-primary/50' : 'hover:shadow-md'
+      }`}
+    >
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium text-muted-foreground">
           {title}
@@ -43,9 +46,11 @@ export function MetricCard({
       <CardContent>
         <div className="text-2xl font-bold text-foreground">{value}</div>
         <div className="flex items-center gap-2 mt-2">
-          <Badge variant={badgeVariant} className="text-xs">
-            {change}
-          </Badge>
+          {change && (
+            <Badge variant={badgeVariant} className="text-xs">
+              {change}
+            </Badge>
+          )}
           {subtitle && (
             <p className="text-xs text-muted-foreground">{subtitle}</p>
           )}

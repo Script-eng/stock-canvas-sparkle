@@ -1,0 +1,335 @@
+// import { useState } from "react"
+// import {
+//   Table,
+//   TableBody,
+//   TableCell,
+//   TableHead,
+//   TableHeader,
+//   TableRow,
+// } from "@/components/ui/table"
+// import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+// import { Input } from "@/components/ui/input"
+// import { Search } from "lucide-react"
+
+// // Define the structure of a single stock from your API
+// interface Stock {
+//   code: string;
+//   name: string;
+//   closing: number;
+//   change_abs: number;
+//   change_pct: number;
+//   volume: number;
+// }
+
+// // Define the shape of the props this component will receive
+// interface MarketSummaryTableProps {
+//   data: Stock[];
+// }
+
+// export function MarketSummaryTable({ data }: MarketSummaryTableProps) {
+//   const [searchTerm, setSearchTerm] = useState("");
+
+//   const filteredData = data.filter(
+//     (stock) =>
+//       stock.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+//       stock.code.toLowerCase().includes(searchTerm.toLowerCase())
+//   );
+
+//   return (
+//     <Card>
+//       <CardHeader className="flex flex-row items-center justify-between">
+//         <div>
+//           <CardTitle className="text-lg font-semibold">Market Summary</CardTitle>
+//           <p className="text-sm text-muted-foreground">Live prices and daily performance</p>
+//         </div>
+//         <div className="relative w-72">
+//           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+//           <Input
+//             placeholder="Search by name or symbol..."
+//             className="pl-10"
+//             value={searchTerm}
+//             onChange={(e) => setSearchTerm(e.target.value)}
+//           />
+//         </div>
+//       </CardHeader>
+//       <CardContent>
+//         <div className="overflow-x-auto">
+//           <Table>
+//             <TableHeader>
+//               <TableRow>
+//                 <TableHead className="font-semibold">Symbol</TableHead>
+//                 <TableHead className="font-semibold">Company</TableHead>
+//                 <TableHead className="font-semibold text-right">Price</TableHead>
+//                 <TableHead className="font-semibold text-right">Change</TableHead>
+//                 <TableHead className="font-semibold text-right">% Change</TableHead>
+//                 <TableHead className="font-semibold text-right">Volume</TableHead>
+//               </TableRow>
+//             </TableHeader>
+//             <TableBody>
+//               {filteredData.length > 0 ? (
+//                 filteredData.map((stock) => (
+//                   <TableRow key={stock.code} className="hover:bg-muted/50 cursor-pointer">
+//                     <TableCell className="font-semibold">{stock.code}</TableCell>
+//                     <TableCell className="text-muted-foreground max-w-xs truncate" title={stock.name}>
+//                       {stock.name}
+//                     </TableCell>
+//                     <TableCell className="font-medium text-right">
+//                       {stock.closing.toFixed(2)}
+//                     </TableCell>
+//                     <TableCell className={`font-medium text-right ${stock.change_abs >= 0 ? 'text-success' : 'text-destructive'}`}>
+//                       {stock.change_abs.toFixed(2)}
+//                     </TableCell>
+//                     <TableCell className={`font-medium text-right ${stock.change_pct >= 0 ? 'text-success' : 'text-destructive'}`}>
+//                       {stock.change_pct >= 0 ? '+' : ''}{stock.change_pct.toFixed(2)}%
+//                     </TableCell>
+//                     <TableCell className="text-right text-muted-foreground">
+//                       {stock.volume.toLocaleString()}
+//                     </TableCell>
+//                   </TableRow>
+//                 ))
+//               ) : (
+//                 <TableRow>
+//                   <TableCell colSpan={6} className="text-center h-24">
+//                     {data.length === 0 ? "Loading market data..." : "No stocks found."}
+//                   </TableCell>
+//                 </TableRow>
+//               )}
+//             </TableBody>
+//           </Table>
+//         </div>
+//         <div className="mt-4 text-sm text-muted-foreground">
+//           Showing {filteredData.length} of {data.length} entries
+//         </div>
+//       </CardContent>
+//     </Card>
+//   )
+// }
+
+// import { useState } from "react";
+// import {
+//   Table,
+//   TableBody,
+//   TableCell,
+//   TableHead,
+//   TableHeader,
+//   TableRow,
+// } from "@/components/ui/table";
+// import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+// import { Input } from "@/components/ui/input";
+// import { Search } from "lucide-react";
+
+// interface Stock {
+//   code: string;
+//   name: string;
+//   closing: number;
+//   change_abs: number;
+//   change_pct: number;
+//   volume: number;
+// }
+
+// interface MarketSummaryTableProps {
+//   data: Stock[];
+//   onRowClick: (stock: Stock) => void; // Function to call when a row is clicked
+//   selectedStockCode?: string;         // The code of the currently selected stock
+// }
+
+// export function MarketSummaryTable({ data, onRowClick, selectedStockCode }: MarketSummaryTableProps) {
+//   const [searchTerm, setSearchTerm] = useState("");
+
+//   const filteredData = data.filter(
+//     (stock) =>
+//       stock.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+//       stock.code.toLowerCase().includes(searchTerm.toLowerCase())
+//   );
+
+//   return (
+//     <Card>
+//       <CardHeader className="flex flex-row items-center justify-between">
+//         <div>
+//           <CardTitle className="text-lg font-semibold">Market Summary</CardTitle>
+//           <p className="text-sm text-muted-foreground">Click a stock to view its chart</p>
+//         </div>
+//         <div className="relative w-72">
+//           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+//           <Input
+//             placeholder="Search by name or symbol..."
+//             className="pl-10"
+//             value={searchTerm}
+//             onChange={(e) => setSearchTerm(e.target.value)}
+//           />
+//         </div>
+//       </CardHeader>
+//       <CardContent>
+//         <div className="overflow-x-auto">
+//           <Table>
+//             <TableHeader>
+//               <TableRow>
+//                 <TableHead className="font-semibold">Symbol</TableHead>
+//                 <TableHead className="font-semibold">Company</TableHead>
+//                 <TableHead className="font-semibold text-right">Price</TableHead>
+//                 <TableHead className="font-semibold text-right">Change</TableHead>
+//                 <TableHead className="font-semibold text-right">% Change</TableHead>
+//                 <TableHead className="font-semibold text-right">Volume</TableHead>
+//               </TableRow>
+//             </TableHeader>
+//             <TableBody>
+//               {filteredData.length > 0 ? (
+//                 filteredData.map((stock) => {
+//                   const isSelected = stock.code === selectedStockCode;
+//                   return (
+//                     <TableRow 
+//                       key={stock.code} 
+//                       onClick={() => onRowClick(stock)}
+//                       className={`cursor-pointer transition-colors ${
+//                         isSelected 
+//                           ? 'bg-muted hover:bg-muted' 
+//                           : 'hover:bg-muted/50'
+//                       }`}
+//                     >
+//                       <TableCell className={`font-semibold ${isSelected ? 'text-primary' : ''}`}>{stock.code}</TableCell>
+//                       <TableCell className="text-muted-foreground max-w-xs truncate" title={stock.name}>{stock.name}</TableCell>
+//                       <TableCell className="font-medium text-right">{stock.closing.toFixed(2)}</TableCell>
+//                       <TableCell className={`font-medium text-right ${stock.change_abs >= 0 ? 'text-success' : 'text-destructive'}`}>
+//                         {stock.change_abs.toFixed(2)}
+//                       </TableCell>
+//                       <TableCell className={`font-medium text-right ${stock.change_pct >= 0 ? 'text-success' : 'text-destructive'}`}>
+//                         {stock.change_pct >= 0 ? '+' : ''}{stock.change_pct.toFixed(2)}%
+//                       </TableCell>
+//                       <TableCell className="text-right text-muted-foreground">{stock.volume.toLocaleString()}</TableCell>
+//                     </TableRow>
+//                   );
+//                 })
+//               ) : (
+//                 <TableRow>
+//                   <TableCell colSpan={6} className="text-center h-24">
+//                     {data.length === 0 ? "Loading market data..." : "No stocks found."}
+//                   </TableCell>
+//                 </TableRow>
+//               )}
+//             </TableBody>
+//           </Table>
+//         </div>
+//         <div className="mt-4 text-sm text-muted-foreground">
+//           Showing {filteredData.length} of {data.length} entries
+//         </div>
+//       </CardContent>
+//     </Card>
+//   );
+// }
+
+
+import { useState } from "react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Search } from "lucide-react";
+
+interface Stock {
+  code: string;
+  name: string;
+  closing: number;
+  change_abs: number;
+  change_pct: number;
+  volume: number;
+}
+
+interface MarketSummaryTableProps {
+  data: Stock[];
+  onRowClick: (stock: Stock) => void;
+  selectedStockCode?: string;
+}
+
+export function MarketSummaryTable({ data, onRowClick, selectedStockCode }: MarketSummaryTableProps) {
+  const [searchTerm, setSearchTerm] = useState("");
+
+  // --- THE FIX IS HERE ---
+  // If `data` is not an array yet (e.g., during initial loading), default to an empty array.
+  const tableData = Array.isArray(data) ? data : [];
+
+  const filteredData = tableData.filter(
+    (stock) =>
+      stock.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      stock.code.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <div>
+          <CardTitle className="text-lg font-semibold">Market Summary</CardTitle>
+          <p className="text-sm text-muted-foreground">Click a stock to view its chart</p>
+        </div>
+        <div className="relative w-72">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+          <Input
+            placeholder="Search by name or symbol..."
+            className="pl-10"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="font-semibold">Symbol</TableHead>
+                <TableHead className="font-semibold">Company</TableHead>
+                <TableHead className="font-semibold text-right">Price</TableHead>
+                <TableHead className="font-semibold text-right">Change</TableHead>
+                <TableHead className="font-semibold text-right">% Change</TableHead>
+                <TableHead className="font-semibold text-right">Volume</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredData.length > 0 ? (
+                filteredData.map((stock) => {
+                  const isSelected = stock.code === selectedStockCode;
+                  return (
+                    <TableRow 
+                      key={stock.code} 
+                      onClick={() => onRowClick(stock)}
+                      className={`cursor-pointer transition-colors ${
+                        isSelected 
+                          ? 'bg-muted hover:bg-muted' 
+                          : 'hover:bg-muted/50'
+                      }`}
+                    >
+                      <TableCell className={`font-semibold ${isSelected ? 'text-primary' : ''}`}>{stock.code}</TableCell>
+                      <TableCell className="text-muted-foreground max-w-xs truncate" title={stock.name}>{stock.name}</TableCell>
+                      <TableCell className="font-medium text-right">{stock.closing.toFixed(2)}</TableCell>
+                      <TableCell className={`font-medium text-right ${stock.change_abs >= 0 ? 'text-success' : 'text-destructive'}`}>
+                        {stock.change_abs.toFixed(2)}
+                      </TableCell>
+                      <TableCell className={`font-medium text-right ${stock.change_pct >= 0 ? 'text-success' : 'text-destructive'}`}>
+                        {stock.change_pct >= 0 ? '+' : ''}{stock.change_pct.toFixed(2)}%
+                      </TableCell>
+                      <TableCell className="text-right text-muted-foreground">{stock.volume.toLocaleString()}</TableCell>
+                    </TableRow>
+                  );
+                })
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center h-24">
+                    {tableData.length === 0 ? "Loading market data..." : "No stocks found."}
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
+        <div className="mt-4 text-sm text-muted-foreground">
+          Showing {filteredData.length} of {tableData.length} entries
+        </div>
+      </CardContent>
+    </Card>
+  );
+}

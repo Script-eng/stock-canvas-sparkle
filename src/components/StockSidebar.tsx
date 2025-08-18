@@ -1,4 +1,3 @@
-import { useState } from "react"
 import { 
   BarChart3, 
   TrendingUp, 
@@ -8,10 +7,8 @@ import {
   Settings,
   User,
   LogOut,
-  Menu
 } from "lucide-react"
 import { NavLink, useLocation } from "react-router-dom"
-
 import {
   Sidebar,
   SidebarContent,
@@ -21,14 +18,14 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarTrigger,
   useSidebar,
 } from "@/components/ui/sidebar"
 
 const navigationItems = [
-  { title: "Dashboard", url: "/", icon: BarChart3 },
+  // Assuming your main dashboard is the root path
+  { title: "Markets", url: "/", icon: TrendingUp }, 
+  { title: "Dashboard", url: "/dashboard", icon: BarChart3 },
   { title: "Portfolio", url: "/portfolio", icon: Wallet },
-  { title: "Markets", url: "/markets", icon: TrendingUp },
   { title: "Analytics", url: "/analytics", icon: PieChart },
   { title: "Activity", url: "/activity", icon: Activity },
 ]
@@ -41,20 +38,10 @@ const accountItems = [
 export function StockSidebar() {
   const { state } = useSidebar()
   const location = useLocation()
-  const currentPath = location.pathname
   const isCollapsed = state === "collapsed"
 
-  const isActive = (path: string) => currentPath === path
-  
-  const getNavCls = ({ isActive }: { isActive: boolean }) =>
-    isActive 
-      ? "bg-primary text-primary-foreground font-medium shadow-sm" 
-      : "hover:bg-muted/50 text-muted-foreground hover:text-foreground"
-
   return (
-    <Sidebar
-      collapsible="icon"
-    >
+    <Sidebar collapsible="icon">
       <SidebarContent className="bg-card border-r">
         {/* Logo/Brand */}
         <div className="p-6 border-b">
@@ -81,9 +68,21 @@ export function StockSidebar() {
               {navigationItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild className="mb-1">
-                    <NavLink to={item.url} end className={getNavCls}>
-                      <item.icon className="w-5 h-5" />
-                      {!isCollapsed && <span className="ml-3">{item.title}</span>}
+                    {/* --- THE FIX IS HERE --- */}
+                    {/* We now use a more explicit className logic */}
+                    <NavLink to={item.url} end={item.url === "/"}>
+                      {({ isActive }) => (
+                        <div
+                          className={`flex items-center w-full rounded-md p-2 transition-colors ${
+                            isActive
+                              ? 'bg-muted text-foreground font-medium' // Active link style
+                              : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground' // Inactive link style
+                          }`}
+                        >
+                          <item.icon className="w-5 h-5" />
+                          {!isCollapsed && <span className="ml-3">{item.title}</span>}
+                        </div>
+                      )}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -92,7 +91,7 @@ export function StockSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Account Section */}
+        {/* Account Section (with similar fix) */}
         <SidebarGroup>
           <SidebarGroupLabel className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-6 py-3">
             Account
@@ -102,15 +101,25 @@ export function StockSidebar() {
               {accountItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild className="mb-1">
-                    <NavLink to={item.url} className={getNavCls}>
-                      <item.icon className="w-5 h-5" />
-                      {!isCollapsed && <span className="ml-3">{item.title}</span>}
+                    <NavLink to={item.url}>
+                       {({ isActive }) => (
+                        <div
+                          className={`flex items-center w-full rounded-md p-2 transition-colors ${
+                            isActive
+                              ? 'bg-muted text-foreground font-medium'
+                              : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
+                          }`}
+                        >
+                          <item.icon className="w-5 h-5" />
+                          {!isCollapsed && <span className="ml-3">{item.title}</span>}
+                        </div>
+                      )}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
               <SidebarMenuItem>
-                <SidebarMenuButton className="mb-1 text-muted-foreground hover:text-destructive hover:bg-destructive/10">
+                <SidebarMenuButton className="mb-1 w-full flex items-center p-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10">
                   <LogOut className="w-5 h-5" />
                   {!isCollapsed && <span className="ml-3">Logout</span>}
                 </SidebarMenuButton>
