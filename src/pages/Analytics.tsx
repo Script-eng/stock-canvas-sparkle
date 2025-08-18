@@ -6,36 +6,59 @@ import { Bell, User } from "lucide-react";
 import { MarketSummaryTable } from "@/components/MarketSummaryTable";
 import { StockPerformanceChart } from "@/components/StockPerformanceChart";
 import { getMarketSummary, getCompanyHistory } from "@/lib/api";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
+
+interface SortConfig {
+  key: string;
+  order: 'asc' | 'desc';
+}
 
 const Analytics = () => {
-  // --- THE FIX IS HERE ---
-  // Ensure state is always initialized as a guaranteed empty array.
   const [marketSummary, setMarketSummary] = useState([]);
   const [selectedStocks, setSelectedStocks] = useState([]);
   const [selectedTimeframe, setSelectedTimeframe] = useState<'D' | 'ME' | 'YE'>('D');
   const [chartDatasets, setChartDatasets] = useState([]);
   const [isChartLoading, setIsChartLoading] = useState(false);
+  const [sortConfig, setSortConfig] = useState<SortConfig>({ key: 'name', order: 'asc' });
+  const [watchlist, setWatchlist] = useLocalStorage<string[]>('stock_watchlist', []);
 
   useEffect(() => {
     const loadMarketData = async () => {
-      const summary = await getMarketSummary();
-      setMarketSummary(summary || []); // Defensively ensure it's an array
-      if (summary && summary.length > 0) {
-        setSelectedStocks([summary[0]]); // Select first stock by default
+      const summary = await getMarketSummary(sortConfig.key, sortConfig.order);
+      setMarketSummary(summary || []);
+      if (selectedStocks.length === 0 && summary && summary.length > 0) {
+        setSelectedStocks([summary[0]]);
       }
     };
     loadMarketData();
-  }, []);
+  }, [sortConfig]);
 
   useEffect(() => {
     const loadChartData = async () => {
       setIsChartLoading(true);
       const datasets = await getCompanyHistory(selectedStocks, selectedTimeframe);
-      setChartDatasets(datasets || []); // Defensively ensure it's an array
+      setChartDatasets(datasets || []);
       setIsChartLoading(false);
     };
     loadChartData();
   }, [selectedStocks, selectedTimeframe]);
+
+  const handleSortChange = (sortKey: string) => {
+    setSortConfig(currentConfig => {
+      const isSameKey = currentConfig.key === sortKey;
+      const newOrder = isSameKey && currentConfig.order === 'asc' ? 'desc' : 'asc';
+      return { key: sortKey, order: newOrder };
+    });
+  };
+
+  const handleWatchlistToggle = (stockCode: string) => {
+    const isInWatchlist = watchlist.includes(stockCode);
+    if (isInWatchlist) {
+      setWatchlist(currentList => currentList.filter(code => code !== stockCode));
+    } else {
+      setWatchlist(currentList => [...currentList, stockCode]);
+    }
+  };
 
   const getChartTitle = () => {
     if (selectedStocks.length > 1) return "Stock Performance Comparison";
@@ -72,8 +95,13 @@ const Analytics = () => {
             <div className="h-[45vh]">
               <MarketSummaryTable 
                 data={marketSummary}
+                selectionMode="multiple"
                 selectedStocks={selectedStocks}
                 onSelectionChange={setSelectedStocks}
+                sortConfig={sortConfig}
+                onSortChange={handleSortChange}
+                watchlist={watchlist}
+                onWatchlistToggle={handleWatchlistToggle}
               />
             </div>
           </main>

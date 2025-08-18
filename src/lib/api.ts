@@ -181,8 +181,12 @@ const fetchFromAPI = async (endpoint: string) => {
   }
 };
 
-export const getMarketSummary = async () => {
-  const data = await fetchFromAPI('/summary-table');
+// export const getMarketSummary = async () => {
+//   const data = await fetchFromAPI('/summary-table');
+//   return data?.rows || [];
+// };
+export const getMarketSummary = async (sortBy = 'name', sortOrder = 'asc') => {
+  const data = await fetchFromAPI(`/summary-table?sortBy=${sortBy}&sortOrder=${sortOrder}`);
   return data?.rows || [];
 };
 
@@ -206,6 +210,7 @@ export const getCompanyHistory = async (stocks: any[], agg: 'D' | 'ME' | 'YE') =
   if (!stocks || stocks.length === 0) {
     return [];
   }
+
   
   // Create a comma-separated string of company codes for the API
   const companyCodes = stocks.map(stock => stock.code).join(',');
@@ -214,6 +219,8 @@ export const getCompanyHistory = async (stocks: any[], agg: 'D' | 'ME' | 'YE') =
   // Your backend conveniently returns the data in the exact format we need
   return data?.datasets || [];
 };
+
+
 
 export const getSectorDistribution = async () => {
   return Promise.resolve([

@@ -30,6 +30,7 @@ const navigationItems = [
   { title: "Activity", url: "/activity", icon: Activity },
 ]
 
+
 const accountItems = [
   { title: "Profile", url: "/profile", icon: User },
   { title: "Settings", url: "/settings", icon: Settings },
