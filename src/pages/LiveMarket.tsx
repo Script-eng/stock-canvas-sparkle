@@ -40,6 +40,8 @@ function MarketRow({ stock, onClick, isEven }) {
   return (
     <tr className={`${bgColor} ${flashBg} hover:bg-blue-50 cursor-pointer transition-colors duration-300 border-b`} onClick={() => onClick(stock)}>
       <td className="px-4 py-3"><div className="font-bold text-gray-900">{stock.symbol}</div><div className="text-xs text-gray-500 truncate max-w-[120px]">{stock.name}</div></td>
+      <td className="px-4 py-3 text-gray-700">${formatNumber(stock.prev_close)}</td>
+      <td className="px-4 py-3 text-gray-700">${formatNumber(stock.latest_price)}</td>
       <td className={`px-4 py-3 font-semibold ${priceColor}`}>${formatNumber(stock.latest_price)}</td>
       <td className={`px-4 py-3 font-medium ${priceColor}`}>{stock.change_direction === 'UP' ? '+' : ''}{formatNumber(stock.change_abs)}</td>
       <td className={`px-4 py-3 font-medium ${priceColor}`}>{stock.change_direction === 'UP' ? '+' : ''}{formatNumber(stock.change_pct)}%</td>
@@ -171,13 +173,15 @@ export default function LiveMarket() {
             <table className="min-w-full">
               <thead className="bg-gray-100 border-b">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Symbol</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Security</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Prev Close</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Latest price</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Change</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Change %</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Volume</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">High</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Low</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Avg Price</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Volume</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time</th>
                 </tr>
               </thead>
