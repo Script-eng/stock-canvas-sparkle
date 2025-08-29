@@ -23,7 +23,8 @@ import {
 
 // Updated with the correct paths from our new router setup
 const navigationItems = [
-  { title: "Markets", url: "/", icon: TrendingUp }, 
+  { title: "Live Market", url: "/live-market", icon: TrendingUp },
+  { title: "Markets", url: "/", icon: BarChart3 }, 
   { title: "Dashboard", url: "/dashboard", icon: BarChart3 },
   { title: "Portfolio", url: "/portfolio", icon: Wallet },
   { title: "Analytics", url: "/analytics", icon: PieChart },
