@@ -1,7 +1,9 @@
+import React, { useEffect, useMemo, useState } from 'react';
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { StockSidebar } from "@/components/StockSidebar";
 import { Button } from "@/components/ui/button";
 import { Bell, User } from "lucide-react";
+import { getLiveMarketData } from '@/lib/api';
 import LiveMarket from "@/components/LiveMarket";
 
 const Dashboard = () => {

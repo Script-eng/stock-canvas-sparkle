@@ -234,7 +234,7 @@
 
 // --- MODIFIED ---
 // We now read both base URLs from our environment variables.
-const HISTORICAL_API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:5000/api";
+const HISTORICAL_API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://192.168.0.147:5000/api";
 const LIVE_API_URL = import.meta.env.VITE_LIVE_API_URL || "http://192.168.0.147:8052/api/data";
 
 

@@ -106,7 +106,7 @@ function DetailedStockCard({ stock, onBack }: { stock: LiveStock; onBack: () => 
 // ------------------ LiveMarket (template only; no sidebar) ------------------
 const LiveMarket: React.FC = () => {
   const [liveData, setLiveData] = useState<LiveStock[]>([]);
-  const [marketStatus, setMarketStatus] = useState<'live' | 'closed' | 'loading' | 'error'>('loading');
+  const [marketStatus, setMarketStatus] = useState<'open' | 'closed' | 'pre-open' | 'loading' | 'error'>('loading');
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -120,11 +120,11 @@ const LiveMarket: React.FC = () => {
         // Accept either { data, status, data_timestamp } or a raw array
         if (response && Array.isArray(response.data)) {
           setLiveData(response.data);
-          setMarketStatus((response.status as any) || 'live');
+          setMarketStatus((response.status as any) || 'open');
           setLastUpdated(new Date(response.data_timestamp || Date.now()));
         } else if (Array.isArray(response)) {
           setLiveData(response as LiveStock[]);
-          setMarketStatus('live');
+          setMarketStatus('open');
           setLastUpdated(new Date());
         } else {
           setMarketStatus('error');
@@ -189,6 +189,38 @@ const LiveMarket: React.FC = () => {
       {/* Content */}
       <div className="max-w-7xl mx-auto px-6 py-6">
         {/* KPI Cards */}
+        <div>
+          <div className="flex items-center gap-4 mb-4">
+            <span
+              className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${
+                marketStatus === 'open'
+                  ? 'bg-green-100 text-green-700'
+                  : marketStatus === 'pre-open'
+                  ? 'bg-yellow-100 text-yellow-900'
+                  : marketStatus === 'closed'
+                  ? 'bg-gray-200 text-gray-600'
+                  : marketStatus === 'error'
+                  ? 'bg-red-100 text-red-700'
+                  : 'bg-blue-100 text-blue-700'
+              }`}
+            >
+              {marketStatus === 'open'
+                ? 'Market Open'
+                : marketStatus === 'closed'
+                ? 'Market Closed'
+                : marketStatus === 'pre-open'
+                ? 'Market Pre-Open'
+                : marketStatus === 'error'
+                ? 'Error Loading Data'
+                : 'Loading...'}
+            </span>
+            {lastUpdated && (
+              <span className="text-xs text-gray-500">
+                Last updated: {lastUpdated.toLocaleTimeString()}
+              </span>
+            )}
+          </div>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
           <Card className="bg-gradient-to-r from-green-500 to-green-600 text-white">
             <CardContent className="p-4">
