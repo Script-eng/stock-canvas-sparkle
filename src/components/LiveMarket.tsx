@@ -62,8 +62,8 @@ function MarketRow({ stock, onClick, isEven }: { stock: LiveStock; onClick: (s: 
         <div className="font-bold text-gray-900">{stock.symbol}</div>
         <div className="text-xs text-gray-500 truncate max-w-[160px]">{stock.name}</div>
       </td>
-      <td className="px-4 py-3 text-gray-700">${formatNumber(stock.prev_close)}</td>
-      <td className="px-4 py-3 text-gray-700">${formatNumber(stock.latest_price)}</td>
+      <td className="px-4 py-3 text-gray-700">{formatNumber(stock.prev_close)}</td>
+      <td className="px-4 py-3 text-gray-700">{formatNumber(stock.latest_price)}</td>
       <td className={`px-4 py-3 font-medium ${priceColor}`}>
         {stock.change_direction === 'UP' ? '+' : ''}
         {formatNumber(stock.change_abs)}
@@ -72,9 +72,9 @@ function MarketRow({ stock, onClick, isEven }: { stock: LiveStock; onClick: (s: 
         {stock.change_direction === 'UP' ? '+' : ''}
         {formatNumber(stock.change_pct)}%
       </td>
-      <td className="px-4 py-3 text-gray-700">${formatNumber(stock.high)}</td>
-      <td className="px-4 py-3 text-gray-700">${formatNumber(stock.low)}</td>
-        <td className="px-4 py-3 text-gray-700">${formatNumber(stock.avg_price)}</td>
+      <td className="px-4 py-3 text-gray-700">{formatNumber(stock.high)}</td>
+      <td className="px-4 py-3 text-gray-700">{formatNumber(stock.low)}</td>
+        <td className="px-4 py-3 text-gray-700">{formatNumber(stock.avg_price)}</td>
       <td className="px-4 py-3 text-gray-700">{formatLargeNumber(stock.volume)}</td>
       <td className="px-4 py-3 text-xs text-gray-500">{stock.trade_time || '--'}</td>
     </tr>
