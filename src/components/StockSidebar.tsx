@@ -52,8 +52,8 @@ export function StockSidebar() {
             </div>
             {!isCollapsed && (
               <div>
-                <h2 className="font-bold text-lg text-foreground">StockEx</h2>
-                <p className="text-xs text-muted-foreground">Trading Platform</p>
+                <h2 className="font-bold text-lg text-foreground">NSE</h2>
+                <p className="text-xs text-muted-foreground">Data Platform</p>
               </div>
             )}
           </div>
@@ -62,7 +62,7 @@ export function StockSidebar() {
         {/* Navigation */}
         <SidebarGroup>
           <SidebarGroupLabel className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-6 py-3">
-            Trading
+            Data Feed
           </SidebarGroupLabel>
           <SidebarGroupContent className="px-3">
             <SidebarMenu>
