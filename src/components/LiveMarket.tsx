@@ -5,6 +5,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Button } from '@/components/ui/button';
 import { Search, TrendingUp, TrendingDown, Activity, DollarSign, ArrowLeft } from 'lucide-react';
 import { getLiveMarketData } from '@/lib/api';
+import { ArrowUp, ArrowDown, Equal } from 'lucide-react';
+
 
 // ------------------ Types ------------------
 interface LiveStock {
@@ -67,15 +69,25 @@ function MarketRow({ stock, onClick, isEven }: { stock: LiveStock; onClick: (s: 
       <td className="px-4 py-3 text-gray-700">{formatNumber(stock.prev_close, 2, true)}</td>
       <td className="px-4 py-3 text-gray-700">{formatNumber(stock.latest_price, 2, true)}</td>
       <td className={`px-4 py-3 font-medium ${priceColor}`}>
-        {stock.change_direction === 'UP' && '+'}
-        {stock.change_direction === 'DOWN' && '-'}
-        {formatNumber(stock.change_abs, 2, true)}
+        <span className="flex items-center gap-1">
+          {stock.change_direction === 'UP' && (
+        <ArrowUp className="w-4 h-4 text-green-600" />
+          )}
+          {stock.change_direction === 'DOWN' && (
+        <ArrowDown className="w-4 h-4 text-red-600" />
+          )}
+          {formatNumber(stock.change_abs, 2, true)}
+        </span>
       </td>
       <td className={`px-4 py-3 font-medium ${priceColor}`}>
-        {stock.change_direction === 'UP' && '+'}
-        {stock.change_direction === 'DOWN' && '-'}
-        {formatNumber(stock.change_pct, 2, true)}%
+        <span className="flex items-center gap-1">
+          {stock.change_direction === 'UP' && '+'}
+          {stock.change_direction === 'DOWN' && '-'}
+          {formatNumber(stock.change_pct, 2, true)}%
+        </span>
       </td>
+
+
 
       <td className="px-4 py-3 text-gray-700">{formatNumber(stock.high, 2, true)}</td>
       <td className="px-4 py-3 text-gray-700">{formatNumber(stock.low, 2, true)}</td>
@@ -308,7 +320,7 @@ case 'losers':
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-blue-100 text-sm">Total Volume</p>
-                  <p className="text-2xl font-bold">{(marketStats.totalVolume)}</p>
+                  <p className="text-2xl font-bold">{formatNumber(marketStats.totalVolume, 0, true)}</p>
                   {/* <p className="text-2xl font-bold">{formatLargeNumber(marketStats.totalVolume)}</p> */}
                 </div>
                 <Activity className="w-8 h-8" />
