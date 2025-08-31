@@ -22,11 +22,23 @@ interface LiveStock {
   trade_time?: string | null;
 }
 
-// ------------------ Helpers ------------------
-const formatNumber = (value: number | null | undefined, decimals = 2): string => {
-  if (typeof value === 'number' && !isNaN(value)) return value.toFixed(decimals);
+// Helper functions
+
+const formatNumber = (
+  value: number | null | undefined,
+  decimals: number = 2,
+  useGrouping: boolean = false
+): string => {
+  if (typeof value === 'number' && !isNaN(value)) {
+    return value.toLocaleString(undefined, {
+      minimumFractionDigits: decimals,
+      maximumFractionDigits: decimals,
+      useGrouping,
+    });
+  }
   return '--';
 };
+
 
 // const formatLargeNumber = (value: number | null | undefined): string => {
 //   if (typeof value !== 'number' || isNaN(value)) return '--';
@@ -36,6 +48,7 @@ const formatNumber = (value: number | null | undefined, decimals = 2): string =>
 //   if (value >= 1e3) return (value / 1e3).toFixed(1) + 'K';
 //   return value.toString();
 // };
+
 
 // ------------------ Row ------------------
 function MarketRow({ stock, onClick, isEven }: { stock: LiveStock; onClick: (s: LiveStock) => void; isEven: boolean }) {
@@ -62,20 +75,20 @@ function MarketRow({ stock, onClick, isEven }: { stock: LiveStock; onClick: (s: 
         <div className="font-bold text-gray-900">{stock.symbol}</div>
         <div className="text-xs text-gray-500 truncate max-w-[160px]">{stock.name}</div>
       </td>
-      <td className="px-4 py-3 text-gray-700">{formatNumber(stock.prev_close)}</td>
-      <td className="px-4 py-3 text-gray-700">{formatNumber(stock.latest_price)}</td>
+      <td className="px-4 py-3 text-gray-700">{formatNumber(stock.prev_close, 2, true)}</td>
+      <td className="px-4 py-3 text-gray-700">{formatNumber(stock.latest_price, 2, true)}</td>
       <td className={`px-4 py-3 font-medium ${priceColor}`}>
         {stock.change_direction === 'UP' ? '+' : ''}
-        {formatNumber(stock.change_abs)}
+        {formatNumber(stock.change_abs, 2, true)}
       </td>
       <td className={`px-4 py-3 font-medium ${priceColor}`}>
         {stock.change_direction === 'UP' ? '+' : ''}
-        {formatNumber(stock.change_pct)}%
+        {formatNumber(stock.change_pct, 2, true)}%
       </td>
-      <td className="px-4 py-3 text-gray-700">{formatNumber(stock.high)}</td>
-      <td className="px-4 py-3 text-gray-700">{formatNumber(stock.low)}</td>
-        <td className="px-4 py-3 text-gray-700">{formatNumber(stock.avg_price)}</td>
-      <td className="px-4 py-3 text-gray-700">{(stock.volume)}</td>
+      <td className="px-4 py-3 text-gray-700">{formatNumber(stock.high, 2, true)}</td>
+      <td className="px-4 py-3 text-gray-700">{formatNumber(stock.low, 2, true)}</td>
+      <td className="px-4 py-3 text-gray-700">{formatNumber(stock.avg_price, 2, true)}</td>
+      <td className="px-4 py-3 text-gray-700">{formatNumber(stock.volume, 0, true)}</td>
       {/* <td className="px-4 py-3 text-gray-700">{formatLargeNumber(stock.volume)}</td> */}
       <td className="px-4 py-3 text-xs text-gray-500">{stock.trade_time || '--'}</td>
     </tr>
@@ -111,7 +124,7 @@ const LiveMarket: React.FC = () => {
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortOrder, setSortOrder] = useState<'alpha' | 'volume' | 'gainers' | 'losers'>('volume');
+  const [sortOrder, setSortOrder] = useState<'alpha' | 'volume' | 'gainers' | 'losers'>('alpha');
   const [selectedStock, setSelectedStock] = useState<LiveStock | null>(null);
 
   useEffect(() => {
@@ -284,7 +297,7 @@ const LiveMarket: React.FC = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <Select value={sortOrder} onValueChange={(v: 'alpha' | 'volume' | 'gainers' | 'losers') => setSortOrder(v)}>
+          <Select value={sortOrder} onValueChange={(a: 'alpha' | 'volume' | 'gainers' | 'losers') => setSortOrder(a)}>
             <SelectTrigger className="w-[200px]">
               <SelectValue placeholder="Sort by..." />
             </SelectTrigger>
