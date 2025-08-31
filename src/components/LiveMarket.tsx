@@ -39,17 +39,6 @@ const formatNumber = (
   return '--';
 };
 
-
-// const formatLargeNumber = (value: number | null | undefined): string => {
-//   if (typeof value !== 'number' || isNaN(value)) return '--';
-//   if (value >= 1e12) return (value / 1e12).toFixed(1) + 'T';
-//   if (value >= 1e9) return (value / 1e9).toFixed(1) + 'B';
-//   if (value >= 1e6) return (value / 1e6).toFixed(1) + 'M';
-//   if (value >= 1e3) return (value / 1e3).toFixed(1) + 'K';
-//   return value.toString();
-// };
-
-
 // ------------------ Row ------------------
 function MarketRow({ stock, onClick, isEven }: { stock: LiveStock; onClick: (s: LiveStock) => void; isEven: boolean }) {
   const [flash, setFlash] = useState(false);
@@ -78,13 +67,16 @@ function MarketRow({ stock, onClick, isEven }: { stock: LiveStock; onClick: (s: 
       <td className="px-4 py-3 text-gray-700">{formatNumber(stock.prev_close, 2, true)}</td>
       <td className="px-4 py-3 text-gray-700">{formatNumber(stock.latest_price, 2, true)}</td>
       <td className={`px-4 py-3 font-medium ${priceColor}`}>
-        {stock.change_direction === 'UP' ? '+' : ''}
+        {stock.change_direction === 'UP' && '+'}
+        {stock.change_direction === 'DOWN' && '-'}
         {formatNumber(stock.change_abs, 2, true)}
       </td>
       <td className={`px-4 py-3 font-medium ${priceColor}`}>
-        {stock.change_direction === 'UP' ? '+' : ''}
+        {stock.change_direction === 'UP' && '+'}
+        {stock.change_direction === 'DOWN' && '-'}
         {formatNumber(stock.change_pct, 2, true)}%
       </td>
+
       <td className="px-4 py-3 text-gray-700">{formatNumber(stock.high, 2, true)}</td>
       <td className="px-4 py-3 text-gray-700">{formatNumber(stock.low, 2, true)}</td>
       <td className="px-4 py-3 text-gray-700">{formatNumber(stock.avg_price, 2, true)}</td>
@@ -165,17 +157,67 @@ const LiveMarket: React.FC = () => {
       case 'alpha':
         data.sort((a, b) => a.symbol.localeCompare(b.symbol));
         break;
-      case 'gainers':
-        data.sort((a, b) => (b.change_pct ?? -Infinity) - (a.change_pct ?? -Infinity));
-        break;
-      case 'losers':
-        data.sort((a, b) => (a.change_pct ?? Infinity) - (b.change_pct ?? Infinity));
-        break;
+
+case 'gainers':
+  data.sort((a, b) => {
+    const getGroup = (s: LiveStock) => {
+      if (s.change_direction === 'UP') return 0;
+      if (!s.change_direction || s.change_direction === 'FLAT') return 1;
+      return 2; // DOWN
+    };
+
+    const groupA = getGroup(a);
+    const groupB = getGroup(b);
+
+    if (groupA !== groupB) return groupA - groupB;
+
+    // Inside UP group: highest to lowest change_pct
+    if (groupA === 0) return (b.change_pct ?? 0) - (a.change_pct ?? 0);
+
+    // Inside FLAT group: maintain order or sort alphabetically if needed
+    if (groupA === 1) return 0;
+
+    // Inside DOWN group: least negative to most negative
+    return (a.change_pct ?? 0) - (b.change_pct ?? 0);
+  });
+  break;
+case 'losers':
+  data.sort((a, b) => {
+    const getGroup = (s: LiveStock) => {
+      if (s.change_direction === 'DOWN') return 0; // group 0 = losers
+      if (!s.change_direction || s.change_direction === 'FLAT') return 1; // group 1 = no change
+      return 2; // group 2 = gainers
+    };
+
+    const groupA = getGroup(a);
+    const groupB = getGroup(b);
+
+    if (groupA !== groupB) return groupA - groupB;
+
+    const pctA = a.change_pct ?? 0;
+    const pctB = b.change_pct ?? 0;
+
+    if (groupA === 0) {
+      // Sort losers: most negative first
+      return pctB - pctA; // -9.3 comes before -0.2
+    }
+
+    if (groupA === 2) {
+      // Sort gainers: smallest gain first
+      return pctA - pctB; // +0.2 comes before +5.1
+    }
+
+    return 0; // No change — keep as is
+  });
+  break;
+
+
       case 'volume':
       default:
         data.sort((a, b) => (b.volume ?? 0) - (a.volume ?? 0));
         break;
     }
+
     return data;
   }, [liveData, searchTerm, sortOrder]);
 
