@@ -261,7 +261,7 @@ case 'losers':
       <div className="max-w-7xl mx-auto px-6 py-6">
         {/* KPI Cards */}
         <div>
-          <div className="flex items-center gap-4 mb-4">
+          <div className="flex flex-wrap items-center gap-4 mb-4 w-full">
             <span
               className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${
                 marketStatus === 'open'
@@ -286,9 +286,11 @@ case 'losers':
                 : 'Loading...'}
             </span>
             {lastUpdated && (
-              <span className="text-xs text-gray-500">
-                Last updated: {lastUpdated.toLocaleTimeString()}
-              </span>
+              <>
+                <span className="text-xs text-gray-500">{lastUpdated.toLocaleTimeString()}</span>
+                <div className="flex-1" />
+                <span className="text-xs text-gray-400">{lastUpdated.toLocaleDateString()}</span>
+              </>
             )}
           </div>
         </div>
@@ -329,13 +331,15 @@ case 'losers':
           </Card>
           <Card className="bg-gradient-to-r from-purple-500 to-purple-600 text-white">
             <CardContent className="p-4">
-              <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-purple-100 text-sm">Active Stocks</p>
-                  <p className="text-2xl font-bold">{liveData.length}</p>
+                  <p className="text-purple-100 text-sm">Turnover</p>
+                  <p className="text-2xl font-bold">
+                  {formatNumber(liveData.reduce((sum, s) => sum + ((s.avg_price ?? 0) * (s.volume ?? 0)), 0), 2, true)}
+                  </p>
                 </div>
-                <DollarSign className="w-8 h-8" />
-              </div>
+                <p> KES</p>
+                </div>
             </CardContent>
           </Card>
         </div>
