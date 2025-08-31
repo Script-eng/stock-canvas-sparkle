@@ -28,14 +28,14 @@ const formatNumber = (value: number | null | undefined, decimals = 2): string =>
   return '--';
 };
 
-const formatLargeNumber = (value: number | null | undefined): string => {
-  if (typeof value !== 'number' || isNaN(value)) return '--';
-  if (value >= 1e12) return (value / 1e12).toFixed(1) + 'T';
-  if (value >= 1e9) return (value / 1e9).toFixed(1) + 'B';
-  if (value >= 1e6) return (value / 1e6).toFixed(1) + 'M';
-  if (value >= 1e3) return (value / 1e3).toFixed(1) + 'K';
-  return value.toString();
-};
+// const formatLargeNumber = (value: number | null | undefined): string => {
+//   if (typeof value !== 'number' || isNaN(value)) return '--';
+//   if (value >= 1e12) return (value / 1e12).toFixed(1) + 'T';
+//   if (value >= 1e9) return (value / 1e9).toFixed(1) + 'B';
+//   if (value >= 1e6) return (value / 1e6).toFixed(1) + 'M';
+//   if (value >= 1e3) return (value / 1e3).toFixed(1) + 'K';
+//   return value.toString();
+// };
 
 // ------------------ Row ------------------
 function MarketRow({ stock, onClick, isEven }: { stock: LiveStock; onClick: (s: LiveStock) => void; isEven: boolean }) {
@@ -75,33 +75,34 @@ function MarketRow({ stock, onClick, isEven }: { stock: LiveStock; onClick: (s: 
       <td className="px-4 py-3 text-gray-700">{formatNumber(stock.high)}</td>
       <td className="px-4 py-3 text-gray-700">{formatNumber(stock.low)}</td>
         <td className="px-4 py-3 text-gray-700">{formatNumber(stock.avg_price)}</td>
-      <td className="px-4 py-3 text-gray-700">{formatLargeNumber(stock.volume)}</td>
+      <td className="px-4 py-3 text-gray-700">{(stock.volume)}</td>
+      {/* <td className="px-4 py-3 text-gray-700">{formatLargeNumber(stock.volume)}</td> */}
       <td className="px-4 py-3 text-xs text-gray-500">{stock.trade_time || '--'}</td>
     </tr>
   );
 }
 
 // ------------------ Detailed Card ------------------
-function DetailedStockCard({ stock, onBack }: { stock: LiveStock; onBack: () => void }) {
-  return (
-    <div className="max-w-7xl mx-auto px-6 py-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-          <Button variant="outline" onClick={onBack} className="flex items-center gap-2">
-            <ArrowLeft className="w-4 h-4" /> Back to Market
-          </Button>
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">{stock.symbol}</h1>
-            <p className="text-lg text-gray-600">{stock.name}</p>
-          </div>
-        </div>
-      </div>
-      <Card>
-        <CardContent className="p-6">Displaying details for {stock.name || stock.symbol}</CardContent>
-      </Card>
-    </div>
-  );
-}
+// function DetailedStockCard({ stock, onBack }: { stock: LiveStock; onBack: () => void }) {
+//   return (
+//     <div className="max-w-7xl mx-auto px-6 py-6 space-y-6">
+//       <div className="flex items-center justify-between">
+//         <div className="flex items-center space-x-4">
+//           <Button variant="outline" onClick={onBack} className="flex items-center gap-2">
+//             <ArrowLeft className="w-4 h-4" /> Back to Market
+//           </Button>
+//           <div>
+//             <h1 className="text-3xl font-bold text-gray-900">{stock.symbol}</h1>
+//             <p className="text-lg text-gray-600">{stock.name}</p>
+//           </div>
+//         </div>
+//       </div>
+//       <Card>
+//         <CardContent className="p-6">Displaying details for {stock.name || stock.symbol}</CardContent>
+//       </Card>
+//     </div>
+//   );
+// }
 
 // ------------------ LiveMarket (template only; no sidebar) ------------------
 const LiveMarket: React.FC = () => {
@@ -110,7 +111,7 @@ const LiveMarket: React.FC = () => {
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortOrder, setSortOrder] = useState<'volume' | 'gainers' | 'losers'>('volume');
+  const [sortOrder, setSortOrder] = useState<'alpha' | 'volume' | 'gainers' | 'losers'>('volume');
   const [selectedStock, setSelectedStock] = useState<LiveStock | null>(null);
 
   useEffect(() => {
@@ -148,6 +149,9 @@ const LiveMarket: React.FC = () => {
       data = data.filter((s) => s.symbol.toLowerCase().includes(term) || (s.name && s.name.toLowerCase().includes(term)));
     }
     switch (sortOrder) {
+      case 'alpha':
+        data.sort((a, b) => a.symbol.localeCompare(b.symbol));
+        break;
       case 'gainers':
         data.sort((a, b) => (b.change_pct ?? -Infinity) - (a.change_pct ?? -Infinity));
         break;
@@ -178,9 +182,9 @@ const LiveMarket: React.FC = () => {
     return liveData.find((s) => s.symbol === selectedStock.symbol) || selectedStock;
   }, [liveData, selectedStock]);
 
-  if (selectedStock && currentStockData) {
-    return <DetailedStockCard stock={currentStockData} onBack={() => setSelectedStock(null)} />;
-  }
+  // if (selectedStock && currentStockData) {
+  //   return <DetailedStockCard stock={currentStockData} onBack={() => setSelectedStock(null)} />;
+  // }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -249,7 +253,8 @@ const LiveMarket: React.FC = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-blue-100 text-sm">Total Volume</p>
-                  <p className="text-2xl font-bold">{formatLargeNumber(marketStats.totalVolume)}</p>
+                  <p className="text-2xl font-bold">{(marketStats.totalVolume)}</p>
+                  {/* <p className="text-2xl font-bold">{formatLargeNumber(marketStats.totalVolume)}</p> */}
                 </div>
                 <Activity className="w-8 h-8" />
               </div>
@@ -279,11 +284,12 @@ const LiveMarket: React.FC = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <Select value={sortOrder} onValueChange={(v: 'volume' | 'gainers' | 'losers') => setSortOrder(v)}>
+          <Select value={sortOrder} onValueChange={(v: 'alpha' | 'volume' | 'gainers' | 'losers') => setSortOrder(v)}>
             <SelectTrigger className="w-[200px]">
               <SelectValue placeholder="Sort by..." />
             </SelectTrigger>
             <SelectContent>
+              <SelectItem value="alpha">Alphabetical</SelectItem>
               <SelectItem value="volume">Most Active</SelectItem>
               <SelectItem value="gainers">Top Gainers</SelectItem>
               <SelectItem value="losers">Top Losers</SelectItem>
