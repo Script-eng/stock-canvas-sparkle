@@ -21,12 +21,12 @@ const Dashboard = () => {
               <div className="flex items-center gap-4"> <SidebarTrigger /> <div> <h1 className="text-2xl font-bold text-foreground">Live Market</h1> <p className="text-sm text-muted-foreground">Real-time stock prices and market movements</p> </div> </div>
             </div>
             <div className="flex items-center gap-3">
-              <Button variant="ghost" size="icon">
+              {/* <Button variant="ghost" size="icon">
                 <Bell className="h-5 w-5" />
               </Button>
               <Button variant="ghost" size="icon">
                 <User className="h-5 w-5" />
-              </Button>
+              </Button> */}
             </div>
           </header>
 
