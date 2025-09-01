@@ -1,9 +1,9 @@
 const HISTORICAL_API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "http://192.168.0.147:5000/api";
+  import.meta.env.VITE_API_BASE_URL;
 const LIVE_API_URL =
-  import.meta.env.VITE_LIVE_API_URL || "http://192.168.0.116:8052/api/data";
+  import.meta.env.VITE_LIVE_API_URL;
 const LIVE_AUTH_URL =
-  import.meta.env.VITE_LIVE_AUTH_URL || "http://192.168.0.116:8052/auth/token";
+  import.meta.env.VITE_LIVE_AUTH_URL;
 
 let liveJwtToken: string | null = null;
 let liveTokenExpiry: number | null = null;
