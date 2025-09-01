@@ -25,6 +25,7 @@ const App = () => (
           {/* <Route path="/" element={<Index />} /> */}
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="/live-market" element={<LiveMarket />} />
+          <Route path="/" element={<LiveMarket />} />
           {/* Other routes can be added here */}
           {/* <Route path="/analytics" element={<Analytics />} /> */}
           {/* <Route path="/dashboard" element={<Dashboard />} /> */}
