@@ -24,3 +24,7 @@ dist-ssr
 *.sw?
 
 .well-known/
+
+# Environment Files
+.env
+.env.local
