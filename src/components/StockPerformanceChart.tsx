@@ -91,10 +91,10 @@ export function StockPerformanceChart({ data, datasets, title, isLoading, active
             <LineChart data={combinedData} margin={{ top: 5, right: 20, left: -10, bottom: 20 }}>
               <CartesianGrid strokeDasharray="3 3" className="opacity-20" />
               <XAxis dataKey="time" axisLine={false} tickLine={false} className="text-xs" />
-              <YAxis axisLine={false} tickLine={false} className="text-xs" tickFormatter={(value) => `$${value.toFixed(2)}`} />
+              <YAxis axisLine={false} tickLine={false} className="text-xs" tickFormatter={(value) => `${value.toFixed(2)}`} />
               <Tooltip
                 contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '0.5rem' }}
-                formatter={(value: number, name: string) => [`$${value.toFixed(2)}`, name]}
+                formatter={(value: number, name: string) => [`${value.toFixed(2)}`, name]}
               />
               {/* Only show the legend in multi-select mode */}
               {safeDatasets.length > 1 && <Legend verticalAlign="bottom" wrapperStyle={{paddingTop: '20px'}} />}

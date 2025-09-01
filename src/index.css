@@ -8,95 +8,123 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 248 250 252;
-    --foreground: 215 25% 27%;
+    /* --- Light Mode Colors --- */
 
-    --card: 0 0% 100%;
-    --card-foreground: 215 25% 27%;
+    /* Core background and foreground colors for the main application area */
+    --background: 220 10% 98%; /* Very light, neutral cool grey (almost white). Removes any perceived yellow tint. */
+    --foreground: 215 25% 27%; /* Dark blue-grey for main text */
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 215 25% 27%;
+    /* Card and popover elements often have a slightly different background than the main page */
+    --card: 0 0% 100%; /* Pure white for cards */
+    --card-foreground: 215 25% 27%; /* Same as foreground */
 
-    --primary: 217 91% 60%;
-    --primary-foreground: 0 0% 100%;
+    --popover: 0 0% 100%; /* Pure white for popovers */
+    --popover-foreground: 215 25% 27%; /* Same as foreground */
 
-    --secondary: 220 13% 91%;
-    --secondary-foreground: 215 25% 27%;
+    /* Primary brand color and its contrasting foreground */
+    --primary: 217 91% 55%; /* Vibrant, distinct blue */
+    --primary-foreground: 0 0% 100%; /* Pure white for primary text/icons */
 
-    --muted: 220 13% 91%;
-    --muted-foreground: 215 16% 47%;
+    /* Secondary action/information color */
+    --secondary: 220 10% 92%; /* Light, neutral grey */
+    --secondary-foreground: 215 25% 27%; /* Dark blue-grey */
 
-    --accent: 142 76% 36%;
-    --accent-foreground: 0 0% 100%;
+    /* Muted elements, less prominent text or backgrounds */
+    --muted: 220 10% 92%; /* Same as secondary */
+    --muted-foreground: 215 16% 47%; /* Medium blue-grey */
 
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
+    /* Accent color for specific features or highlights (e.g., success state or badges) */
+    --accent: 142 76% 36%; /* Clear, vibrant green */
+    --accent-foreground: 0 0% 100%; /* Pure white */
 
-    --warning: 25 95% 53%;
-    --warning-foreground: 0 0% 100%;
+    /* State colors */
+    --destructive: 0 84% 60%; /* Warning red for destructive actions */
+    --destructive-foreground: 0 0% 100%; /* Pure white */
 
-    --success: 142 76% 36%;
-    --success-foreground: 0 0% 100%;
+    --warning: 25 95% 53%; /* Alert orange for warnings */
+    --warning-foreground: 0 0% 100%; /* Pure white */
 
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 217 91% 60%;
+    --success: 142 76% 36%; /* Confirmation green (same as accent) */
+    --success-foreground: 0 0% 100%; /* Pure white */
 
-    --radius: 0.5rem;
+    /* UI specific colors */
+    --border: 220 10% 90%; /* Slightly darker neutral grey for borders */
+    --input: 220 10% 92%; /* Input field background */
+    --ring: 217 91% 55%; /* Focus ring color (matches primary) */
 
-    --sidebar-background: 0 0% 98%;
+    --radius: 0.5rem; /* Border radius variable */
 
-    --sidebar-foreground: 240 5.3% 26.1%;
+    /* Sidebar specific colors for light mode */
+    --sidebar-background: 220 10% 95%; /* Slightly darker neutral grey than main background for sidebar distinction */
+    --sidebar-foreground: 215 25% 27%; /* Same as main foreground */
 
-    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary: 217 91% 55%; /* Active item background (matches primary) */
+    --sidebar-primary-foreground: 0 0% 100%; /* Pure white */
 
-    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 220 10% 90%; /* Hover/inactive item background */
+    --sidebar-accent-foreground: 215 16% 47%; /* Muted foreground for accent */
 
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-border: 220 10% 88%; /* Sidebar internal borders */
+    --sidebar-ring: 217 91% 55%; /* Sidebar focus ring (matches primary) */
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    /* --- Dark Mode Colors --- */
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    /* Core background and foreground colors for the main application area */
+    --background: 222.2 84% 4.9%; /* Very dark blue-grey */
+    --foreground: 210 40% 98%; /* Very light blue-grey */
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    /* Card and popover elements */
+    --card: 222.2 84% 4.9%; /* Same as background for cards */
+    --card-foreground: 210 40% 98%; /* Same as foreground */
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --popover: 222.2 84% 4.9%; /* Same as background for popovers */
+    --popover-foreground: 210 40% 98%; /* Same as foreground */
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    /* Primary brand color and its contrasting foreground */
+    --primary: 217 91% 70%; /* Brighter, vibrant blue for dark mode primary */
+    --primary-foreground: 222.2 47.4% 11.2%; /* Dark blue-grey for primary text/icons */
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    /* Secondary action/information color */
+    --secondary: 217.2 32.6% 17.5%; /* Dark blue-grey */
+    --secondary-foreground: 210 40% 98%; /* Very light blue-grey */
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    /* Muted elements, less prominent text or backgrounds */
+    --muted: 217.2 32.6% 17.5%; /* Same as secondary */
+    --muted-foreground: 215 20.2% 65.1%; /* Medium blue-grey */
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    /* Accent color for specific features or highlights */
+    --accent: 142 70% 60%; /* Lighter, vibrant green for dark mode accent */
+    --accent-foreground: 0 0% 100%; /* Pure white */
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* State colors */
+    --destructive: 0 80% 65%; /* Lighter red for destructive actions */
+    --destructive-foreground: 0 0% 100%; /* Pure white */
+
+    --warning: 25 90% 65%; /* Lighter orange for warnings */
+    --warning-foreground: 0 0% 100%; /* Pure white */
+
+    --success: 142 70% 60%; /* Lighter green (same as accent) */
+    --success-foreground: 0 0% 100%; /* Pure white */
+
+    /* UI specific colors */
+    --border: 217.2 32.6% 17.5%; /* Dark blue-grey for borders */
+    --input: 217.2 32.6% 17.5%; /* Input field background */
+    --ring: 217 91% 70%; /* Focus ring color (matches primary) */
+
+    /* Sidebar specific colors for dark mode */
+    --sidebar-background: 240 5.9% 10%; /* Very dark blue-grey for sidebar */
+    --sidebar-foreground: 240 4.8% 95.9%; /* Very light blue-grey */
+
+    --sidebar-primary: 217 91% 70%; /* Active item background (matches primary) */
+    --sidebar-primary-foreground: 0 0% 100%; /* Pure white */
+
+    --sidebar-accent: 240 3.7% 15.9%; /* Hover/inactive item background */
+    --sidebar-accent-foreground: 240 4.8% 95.9%; /* Very light blue-grey */
+
+    --sidebar-border: 240 3.7% 15.9%; /* Sidebar internal borders */
+    --sidebar-ring: 217 91% 70%; /* Sidebar focus ring (matches primary) */
   }
 }
 

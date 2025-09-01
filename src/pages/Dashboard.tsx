@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
+import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { StockSidebar } from "@/components/StockSidebar";
 import { Button } from "@/components/ui/button";
 import { Bell, User, TrendingUp, TrendingDown, Activity, List } from "lucide-react";
@@ -82,13 +82,12 @@ const Dashboard = () => {
         <SidebarInset className="flex-1">
           <header className="flex items-center justify-between p-6 border-b bg-card">
             <div>
-              <h1 className="text-2xl font-bold text-foreground">Market Dashboard</h1>
-              <p className="text-sm text-muted-foreground">A high-level overview of today's market health</p>
+              <div className="flex items-center gap-4"> <SidebarTrigger /> <div> <h1 className="text-2xl font-bold text-foreground">Market Dashboard</h1> <p className="text-sm text-muted-foreground">A high-level overview of today's market health</p> </div> </div>
             </div>
-            <div className="flex items-center gap-3">
+            {/* <div className="flex items-center gap-3">
               <Button variant="ghost" size="icon"><Bell className="h-5 w-5" /></Button>
               <Button variant="ghost" size="icon"><User className="h-5 w-5" /></Button>
-            </div>
+            </div> */}
           </header>
 
           <main className="flex-1 p-6 space-y-6">

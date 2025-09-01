@@ -10,6 +10,7 @@ import Dashboard from "./pages/Dashboard";
 import Portfolio from "./pages/Portfolio";
 import Activity from "./pages/Activity";
 import LiveMarket from "./pages/LiveMarket";
+import WorkInProgress from "./pages/WorkInProgress";
 
 
 const queryClient = new QueryClient();
@@ -21,15 +22,16 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Index />} />
+          {/* <Route path="/" element={<Index />} /> */}
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="/live-market" element={<LiveMarket />} />
+          {/* <Route path="/live-market" element={<LiveMarket />} /> */}
+          <Route path="/" element={<LiveMarket />} />
           {/* Other routes can be added here */}
-          <Route path="/analytics" element={<Analytics />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/portfolio" element={<Portfolio />} />
-          <Route path="/activity" element={<Activity />} />
-          <Route path="*" element={<NotFound />} />
+          {/* <Route path="/analytics" element={<Analytics />} /> */}
+          {/* <Route path="/dashboard" element={<Dashboard />} /> */}
+          {/* <Route path="/portfolio" element={<Portfolio />} /> */}
+          {/* <Route path="/activity" element={<Activity />} /> */}
+          <Route path="*" element={<WorkInProgress />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>

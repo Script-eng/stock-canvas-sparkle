@@ -140,7 +140,7 @@ export function MarketSummaryTable({
                   )}
                   <TableCell className={`font-semibold ${isSelected ? 'text-primary' : ''}`}>{stock.code}</TableCell>
                   <TableCell className="text-muted-foreground max-w-xs truncate">{stock.name}</TableCell>
-                  <TableCell className="font-medium text-right">${stock.closing.toFixed(2)}</TableCell>
+                  <TableCell className="font-medium text-right">{stock.closing.toFixed(2)}</TableCell>
                   <TableCell className={`font-medium text-right ${stock.change_pct >= 0 ? 'text-success' : 'text-destructive'}`}>
                     {stock.change_pct >= 0 ? '+' : ''}{stock.change_pct.toFixed(2)}%
                   </TableCell>
