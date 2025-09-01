@@ -1,261 +1,32 @@
-// // This is the base URL of your backend server.
-// const API_BASE_URL = "http://127.0.0.1:5000/api";
+const HISTORICAL_API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://192.168.0.147:5000/api";
+const LIVE_API_URL =
+  import.meta.env.VITE_LIVE_API_URL || "http://192.168.0.116:8052/api/data";
+const LIVE_AUTH_URL =
+  import.meta.env.VITE_LIVE_AUTH_URL || "http://192.168.0.116:8052/auth/token";
 
-// const getAuthHeaders = () => {
-//   const token = import.meta.env.VITE_API_SECRET_TOKEN;
-//   if (!token) {
-//     console.error("API secret token is missing. Please check your .env.local file.");
-//     return {};
-//   }
-//   return {
-//     'Authorization': `Bearer ${token}`,
-//     'Content-Type': 'application/json'
-//   };
-// };
+let liveJwtToken: string | null = null;
+let liveTokenExpiry: number | null = null;
 
-// const fetchFromAPI = async (endpoint: string) => {
-//   try {
-//     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-//       headers: getAuthHeaders(),
-//     });
-//     if (!response.ok) {
-//       throw new Error(`HTTP error! status: ${response.status}`);
-//     }
-//     return await response.json();
-//   } catch (error) {
-//     console.error(`Failed to fetch from ${endpoint}:`, error);
-//     return null;
-//   }
-// };
-
-// export const getMarketSummary = async () => {
-//   const data = await fetchFromAPI('/summary-table');
-//   return data?.rows || [];
-// };
-
-// export const getMarketMovers = async () => {
-//   const data = await fetchFromAPI('/chart-data?agg=D');
-//   if (!data || !data.data) return { gainers: [], losers: [] };
-//   const gainers = data.data.filter((d: any) => d.performance === 'Gainer');
-//   const losers = data.data.filter((d: any) => d.performance === 'Loser')
-//                             .sort((a: any, b: any) => a.change_pct - b.change_pct);
-//   return { gainers, losers };
-// };
-
-// /** 
-//  * --- MODIFIED FUNCTION ---
-//  * Fetches historical price data for an array of companies.
-//  * @param stocks An array of stock objects to fetch history for.
-//  * @param agg The aggregation level: 'D' (Daily), 'ME' (Monthly), 'YE' (Yearly)
-//  */
-// export const getCompanyHistory = async (stocks: any[], agg: 'D' | 'ME' | 'YE') => {
-//   // If no stocks are selected, return an empty array to clear the chart
-//   if (!stocks || stocks.length === 0) {
-//     return [];
-//   }
-  
-//   // Create a comma-separated string of company codes for the API
-//   const companyCodes = stocks.map(stock => stock.code).join(',');
-  
-//   const data = await fetchFromAPI(`/chart-data?agg=${agg}&companies=${companyCodes}`);
-//   // Your backend conveniently returns the data in the exact format we need
-//   return data?.datasets || [];
-// };
-
-// export const getSectorDistribution = async () => {
-//   return Promise.resolve([
-//     { name: 'Agricultural', value: 25, color: 'hsl(var(--primary))' },
-//     { name: 'Financials', value: 35, color: 'hsl(var(--success))' },
-//     { name: 'Industrial', value: 15, color: 'hsl(var(--warning))' },
-//     { name: 'Consumer', value: 15, color: 'hsl(var(--accent))' },
-//     { name: 'Energy', value: 10, color: 'hsl(var(--destructive))' },
-//   ]);
-// };
-
-// This is the base URL of your backend server.
-// const API_BASE_URL = "http://127.0.0.1:5000/api";
-
-// const getAuthHeaders = () => {
-//   const token = import.meta.env.VITE_API_SECRET_TOKEN;
-//   if (!token) {
-//     console.error("API secret token is missing. Please check your .env.local file.");
-//     return {};
-//   }
-//   return {
-//     'Authorization': `Bearer ${token}`,
-//     'Content-Type': 'application/json'
-//   };
-// };
-
-// const fetchFromAPI = async (endpoint: string) => {
-//   try {
-//     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-//       headers: getAuthHeaders(),
-//     });
-//     if (!response.ok) {
-//       throw new Error(`HTTP error! status: ${response.status}`);
-//     }
-//     return await response.json();
-//   } catch (error) {
-//     console.error(`Failed to fetch from ${endpoint}:`, error);
-//     return null;
-//   }
-// };
-
-// export const getMarketSummary = async () => {
-//   const data = await fetchFromAPI('/summary-table');
-//   return data?.rows || [];
-// };
-
-// export const getMarketMovers = async () => {
-//   const data = await fetchFromAPI('/chart-data?agg=D');
-//   if (!data || !data.data) return { gainers: [], losers: [] };
-//   const gainers = data.data.filter((d: any) => d.performance === 'Gainer');
-//   const losers = data.data.filter((d: any) => d.performance === 'Loser')
-//                             .sort((a: any, b: any) => a.change_pct - b.change_pct);
-//   return { gainers, losers };
-// };
-
-// /** 
-//  * --- MODIFIED FUNCTION ---
-//  * Fetches historical price data. Now correctly handles a single ticker string.
-//  * @param ticker A single stock symbol string (e.g., "WTK")
-//  * @param agg The aggregation level: 'D' (Daily), 'ME' (Monthly), 'YE' (Yearly)
-//  */
-// export const getCompanyHistory = async (ticker: string, agg: 'D' | 'ME' | 'YE') => {
-//   // --- THE FIX IS HERE ---
-//   // If no ticker is provided, or it's not a string, return an empty array to prevent errors.
-//   if (!ticker || typeof ticker !== 'string') {
-//     return [];
-//   }
-  
-//   // The companyCodes variable is now simply the ticker string itself.
-//   const companyCodes = ticker;
-  
-//   const data = await fetchFromAPI(`/chart-data?agg=${agg}&companies=${companyCodes}`);
-//   // Your backend returns a 'datasets' array. We only care about the first item for a single stock.
-//   const dataset = data?.datasets?.[0];
-
-//   // Return the data points if they exist, otherwise return an empty array.
-//   return dataset?.dataPoints || [];
-// };
-
-// export const getSectorDistribution = async () => {
-//   return Promise.resolve([
-//     { name: 'Agricultural', value: 25, color: 'hsl(var(--primary))' },
-//     { name: 'Financials', value: 35, color: 'hsl(var(--success))' },
-//     { name: 'Industrial', value: 15, color: 'hsl(var(--warning))' },
-//     { name: 'Consumer', value: 15, color: 'hsl(var(--accent))' },
-//     { name: 'Energy', value: 10, color: 'hsl(var(--destructive))' },
-//   ]);
-// };
-
-
-// This is the base URL of your backend server.
-// const API_BASE_URL = "http://127.0.0.1:5000/api";
-
-// const getAuthHeaders = () => {
-//   const token = import.meta.env.VITE_API_SECRET_TOKEN;
-//   if (!token) {
-//     console.error("API secret token is missing. Please check your .env.local file.");
-//     return {};
-//   }
-//   return {
-//     'Authorization': `Bearer ${token}`,
-//     'Content-Type': 'application/json'
-//   };
-// };
-
-// const fetchFromAPI = async (endpoint: string) => {
-//   try {
-//     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-//       headers: getAuthHeaders(),
-//     });
-//     if (!response.ok) {
-//       throw new Error(`HTTP error! status: ${response.status}`);
-//     }
-//     return await response.json();
-//   } catch (error) {
-//     console.error(`Failed to fetch from ${endpoint}:`, error);
-//     return null;
-//   }
-// };
-
-// // export const getMarketSummary = async () => {
-// //   const data = await fetchFromAPI('/summary-table');
-// //   return data?.rows || [];
-// // };
-// export const getMarketSummary = async (sortBy = 'name', sortOrder = 'asc') => {
-//   const data = await fetchFromAPI(`/summary-table?sortBy=${sortBy}&sortOrder=${sortOrder}`);
-//   return data?.rows || [];
-// };
-
-// export const getMarketMovers = async () => {
-//   const data = await fetchFromAPI('/chart-data?agg=D');
-//   if (!data || !data.data) return { gainers: [], losers: [] };
-//   const gainers = data.data.filter((d: any) => d.performance === 'Gainer');
-//   const losers = data.data.filter((d: any) => d.performance === 'Loser')
-//                             .sort((a: any, b: any) => a.change_pct - b.change_pct);
-//   return { gainers, losers };
-// };
-
-// /** 
-//  * --- MODIFIED FUNCTION ---
-//  * Fetches historical price data for an array of stocks.
-//  * @param stocks An array of stock objects to fetch history for.
-//  * @param agg The aggregation level: 'D' (Daily), 'ME' (Monthly), 'YE' (Yearly)
-//  */
-// export const getCompanyHistory = async (stocks: any[], agg: 'D' | 'ME' | 'YE') => {
-//   // If no stocks are selected, return an empty array to clear the chart
-//   if (!stocks || stocks.length === 0) {
-//     return [];
-//   }
-
-  
-//   // Create a comma-separated string of company codes for the API
-//   const companyCodes = stocks.map(stock => stock.code).join(',');
-  
-//   const data = await fetchFromAPI(`/chart-data?agg=${agg}&companies=${companyCodes}`);
-//   // Your backend conveniently returns the data in the exact format we need
-//   return data?.datasets || [];
-// };
-
-
-
-// export const getSectorDistribution = async () => {
-//   return Promise.resolve([
-//     { name: 'Agricultural', value: 25, color: 'hsl(var(--primary))' },
-//     { name: 'Financials', value: 35, color: 'hsl(var(--success))' },
-//     { name: 'Industrial', value: 15, color: 'hsl(var(--warning))' },
-//     { name: 'Consumer', value: 15, color: 'hsl(var(--accent))' },
-//     { name: 'Energy', value: 10, color: 'hsl(var(--destructive))' },
-//   ]);
-// };
-
-// --- MODIFIED ---
-// We now read both base URLs from our environment variables.
-const HISTORICAL_API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://192.168.0.147:5000/api";
-const LIVE_API_URL = import.meta.env.VITE_LIVE_API_URL || "http://192.168.0.147:8052/api/data";
-
-
+// --- HISTORICAL AUTH (unchanged) ---
 const getAuthHeaders = () => {
   const token = import.meta.env.VITE_API_SECRET_TOKEN;
   if (!token) {
-    console.error("API secret token is missing. Please check your .env.local file.");
+    console.error(
+      "API secret token is missing. Please check your .env.local file."
+    );
     return {};
   }
   return {
-    'Authorization': `Bearer ${token}`,
-    'Content-Type': 'application/json'
+    Authorization: `Bearer ${token}`,
+    "Content-Type": "application/json",
   };
 };
 
-// This helper is now generic and just needs the full URL.
-const fetchFromAPI = async (fullUrl: string) => {
+// --- GENERIC FETCH (historical + live uses this) ---
+const fetchFromAPI = async (fullUrl: string, headers: Record<string, string> = {}) => {
   try {
-    const response = await fetch(fullUrl, {
-      headers: getAuthHeaders(),
-    });
+    const response = await fetch(fullUrl, { headers });
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
@@ -266,56 +37,83 @@ const fetchFromAPI = async (fullUrl: string) => {
   }
 };
 
+// --- TOKEN HANDLER FOR LIVE DATA ---
+async function getLiveToken(): Promise<string> {
+  const now = Date.now();
 
-// --- HISTORICAL DATA FUNCTIONS ---
-// These functions will use the HISTORICAL_API_BASE_URL.
+  // Reuse token if still valid
+  if (liveJwtToken && liveTokenExpiry && now < liveTokenExpiry) {
+    return liveJwtToken;
+  }
 
-export const getMarketSummary = async (sortBy = 'name', sortOrder = 'asc') => {
+  const res = await fetch(LIVE_AUTH_URL, { method: "POST" });
+  if (!res.ok) {
+    throw new Error("Failed to fetch live JWT token");
+  }
+
+  const data = await res.json();
+  liveJwtToken = data.token;
+
+  // Decode expiry from JWT payload
+  const [, payloadBase64] = liveJwtToken.split(".");
+  const payload = JSON.parse(atob(payloadBase64));
+  liveTokenExpiry = payload.exp * 1000; // ms
+
+  return liveJwtToken!;
+}
+
+// ------------------ HISTORICAL DATA ------------------
+export const getMarketSummary = async (sortBy = "name", sortOrder = "asc") => {
   const endpoint = `/summary-table?sortBy=${sortBy}&sortOrder=${sortOrder}`;
-  const data = await fetchFromAPI(`${HISTORICAL_API_BASE_URL}${endpoint}`);
+  const data = await fetchFromAPI(`${HISTORICAL_API_BASE_URL}${endpoint}`, getAuthHeaders());
   return data?.rows || [];
 };
 
 export const getMarketMovers = async () => {
-  const endpoint = '/chart-data?agg=D';
-  const data = await fetchFromAPI(`${HISTORICAL_API_BASE_URL}${endpoint}`);
+  const endpoint = "/chart-data?agg=D";
+  const data = await fetchFromAPI(`${HISTORICAL_API_BASE_URL}${endpoint}`, getAuthHeaders());
   if (!data || !data.data) return { gainers: [], losers: [] };
-  const gainers = data.data.filter((d: any) => d.performance === 'Gainer');
-  const losers = data.data.filter((d: any) => d.performance === 'Loser')
-                            .sort((a: any, b: any) => a.change_pct - b.change_pct);
+  const gainers = data.data.filter((d: any) => d.performance === "Gainer");
+  const losers = data.data
+    .filter((d: any) => d.performance === "Loser")
+    .sort((a: any, b: any) => a.change_pct - b.change_pct);
   return { gainers, losers };
 };
 
-export const getCompanyHistory = async (stocks: any[], agg: 'D' | 'ME' | 'YE') => {
+export const getCompanyHistory = async (
+  stocks: any[],
+  agg: "D" | "ME" | "YE"
+) => {
   if (!stocks || stocks.length === 0) {
     return [];
   }
-  const companyCodes = stocks.map(stock => stock.code).join(',');
+  const companyCodes = stocks.map((stock) => stock.code).join(",");
   const endpoint = `/chart-data?agg=${agg}&companies=${companyCodes}`;
-  const data = await fetchFromAPI(`${HISTORICAL_API_BASE_URL}${endpoint}`);
+  const data = await fetchFromAPI(`${HISTORICAL_API_BASE_URL}${endpoint}`, getAuthHeaders());
   return data?.datasets || [];
 };
 
-
-// --- MOCKED DATA FUNCTION ---
-// This does not make an API call.
-
+// ------------------ MOCKED DATA ------------------
 export const getSectorDistribution = async () => {
   return Promise.resolve([
-    { name: 'Agricultural', value: 25, color: 'hsl(var(--primary))' },
-    { name: 'Financials', value: 35, color: 'hsl(var(--success))' },
-    { name: 'Industrial', value: 15, color: 'hsl(var(--warning))' },
-    { name: 'Consumer', value: 15, color: 'hsl(var(--accent))' },
-    { name: 'Energy', value: 10, color: 'hsl(var(--destructive))' },
+    { name: "Agricultural", value: 25, color: "hsl(var(--primary))" },
+    { name: "Financials", value: 35, color: "hsl(var(--success))" },
+    { name: "Industrial", value: 15, color: "hsl(var(--warning))" },
+    { name: "Consumer", value: 15, color: "hsl(var(--accent))" },
+    { name: "Energy", value: 10, color: "hsl(var(--destructive))" },
   ]);
 };
 
-
-// --- LIVE DATA FUNCTION ---
-// This function will use the new, specific LIVE_API_URL.
-
+// ------------------ LIVE DATA ------------------
 export const getLiveMarketData = async () => {
-  // It calls the full, specific URL for the live data.
-  const data = await fetchFromAPI(LIVE_API_URL); 
-  return data;
+  try {
+    const token = await getLiveToken();
+    return await fetchFromAPI(LIVE_API_URL, {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    });
+  } catch (err) {
+    console.error("Failed to fetch live market data:", err);
+    return null;
+  }
 };
