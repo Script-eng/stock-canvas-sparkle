@@ -139,7 +139,8 @@ const LiveMarket: React.FC = () => {
         if (response && Array.isArray(response.data)) {
           setLiveData(response.data);
           setMarketStatus((response.status as any) || 'open');
-          setLastUpdated(new Date(response.data_timestamp || Date.now()));
+          // setLastUpdated(new Date(Date.now()));
+          setLastUpdated(new Date(response.data_timestamp));
         } else if (Array.isArray(response)) {
           setLiveData(response as LiveStock[]);
           setMarketStatus('open');
@@ -287,7 +288,7 @@ case 'losers':
             </span>
             {lastUpdated && (
               <>
-                <span className="text-xs text-gray-500">{lastUpdated.toLocaleTimeString()}</span>
+                <span className="text-xs text-gray-500">{lastUpdated.toLocaleTimeString()}</span> 
                 <div className="flex-1" />
                 <span className="text-xs text-gray-400">{lastUpdated.toLocaleDateString()}</span>
               </>
