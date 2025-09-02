@@ -34,3 +34,4 @@ dist-ssr
 # deployment tools
 .version.txt
 production.sh
+_production/
