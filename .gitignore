@@ -28,3 +28,12 @@ dist-ssr
 # Environment Files
 .env
 .env.local
+
+
+
+# deployment tools
+.version.txt
+production.sh
+_production/
+security.txt
+robots.txt
