@@ -12,7 +12,6 @@ import Activity from "./pages/Activity";
 import LiveMarket from "./pages/LiveMarket";
 import WorkInProgress from "./pages/WorkInProgress";
 
-
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -31,6 +30,7 @@ const App = () => (
           {/* <Route path="/dashboard" element={<Dashboard />} /> */}
           {/* <Route path="/portfolio" element={<Portfolio />} /> */}
           {/* <Route path="/activity" element={<Activity />} /> */}
+          <Route path="/404" element={<NotFound />} />
           <Route path="*" element={<WorkInProgress />} />
         </Routes>
       </BrowserRouter>
