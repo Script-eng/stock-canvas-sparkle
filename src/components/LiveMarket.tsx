@@ -140,7 +140,7 @@ const LiveMarket: React.FC = () => {
           setLiveData(response.data);
           setMarketStatus((response.status as any) || 'open');
           // setLastUpdated(new Date(Date.now()));
-          setLastUpdated(new Date(response.data_timestamp));
+            setLastUpdated(new Date(new Date(response.data_timestamp).toLocaleString("en-US", { timeZone: "Africa/Nairobi" })));
         } else if (Array.isArray(response)) {
           setLiveData(response as LiveStock[]);
           setMarketStatus('open');
