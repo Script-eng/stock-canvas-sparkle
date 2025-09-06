@@ -4,6 +4,8 @@ const LIVE_API_URL =
   import.meta.env.VITE_LIVE_API_URL;
 const LIVE_AUTH_URL =
   import.meta.env.VITE_LIVE_AUTH_URL;
+const MARKET_STATUS_URL =
+  import.meta.env.VITE_MARKET_STATUS_URL;
 
 let liveJwtToken: string | null = null;
 let liveTokenExpiry: number | null = null;
@@ -115,5 +117,20 @@ export const getLiveMarketData = async () => {
   } catch (err) {
     console.error("Failed to fetch live market data:", err);
     return null;
+  }
+};
+
+// Export market status seperately
+export const getMarketStatus = async () => {
+  try {
+    const token = await getLiveToken();
+    const data = await fetchFromAPI(MARKET_STATUS_URL, {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    });
+    return data?.status || "unknown";
+  } catch (err) {
+    console.error("Failed to fetch market status:", err);
+    return "unknown";
   }
 };
