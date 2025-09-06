@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Search, TrendingUp, TrendingDown, Activity, DollarSign, ArrowLeft } from 'lucide-react';
-import { getLiveMarketData } from '@/lib/api';
+import { getLiveMarketData, getMarketStatus } from '@/lib/api';
 import { ArrowUp, ArrowDown, Equal } from 'lucide-react';
 
 
@@ -135,21 +135,15 @@ const LiveMarket: React.FC = () => {
     const fetchData = async () => {
       try {
         const response: any = await getLiveMarketData();
-        // Accept either { data, status, data_timestamp } or a raw array
         if (response && Array.isArray(response.data)) {
           setLiveData(response.data);
-          setMarketStatus((response.status as any) || 'open');
-          // setLastUpdated(new Date(Date.now()));
-            setLastUpdated(new Date(new Date(response.data_timestamp).toLocaleString("en-US", { timeZone: "Africa/Nairobi" })));
         } else if (Array.isArray(response)) {
           setLiveData(response as LiveStock[]);
-          setMarketStatus('open');
-          setLastUpdated(new Date());
-        } else {
-          setMarketStatus('error');
+          // setLastUpdated(new Date());
         }
+        setLastUpdated(new Date());
       } catch (e) {
-        setMarketStatus('error');
+        console.error('Error fetching live market data:', e);
       } finally {
         setIsLoading(false);
       }
@@ -158,6 +152,21 @@ const LiveMarket: React.FC = () => {
     fetchData();
     const id = setInterval(fetchData, 5000);
     return () => clearInterval(id);
+  }, []);
+
+  
+  useEffect(() => {
+      const fetchStatus = async () => {
+      try {
+        const status = await getMarketStatus();
+        setMarketStatus(status as any);
+      } catch (e) {
+        setMarketStatus('error');
+      }
+    };
+    fetchStatus();
+    const statusId = setInterval(fetchStatus, 60000); // every minute
+    return () => clearInterval(statusId);
   }, []);
 
   const sortedAndFilteredData = useMemo(() => {
