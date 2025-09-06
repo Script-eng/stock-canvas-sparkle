@@ -138,10 +138,11 @@ const LiveMarket: React.FC = () => {
         if (response && Array.isArray(response.data)) {
           setLiveData(response.data);
         } else if (Array.isArray(response)) {
-          setLiveData(response as LiveStock[]);
+          // setLiveData(response as LiveStock[]);
           // setLastUpdated(new Date());
+
         }
-        setLastUpdated(new Date());
+        // setLastUpdated(new Date());
       } catch (e) {
         console.error('Error fetching live market data:', e);
       } finally {
