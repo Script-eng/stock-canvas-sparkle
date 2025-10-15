@@ -4,16 +4,22 @@ import { StockSidebar } from "@/components/StockSidebar";
 import { Button } from "@/components/ui/button";
 import { Bell, User, TrendingUp, TrendingDown, Activity, List } from "lucide-react";
 import { MetricCard } from "@/components/MetricCard";
-import { StockPerformanceChart } from "@/components/StockPerformanceChart"; // Import the chart component
+import { StockPerformanceChart } from "@/components/StockPerformanceChart";
 import { getMarketSummary, getCompanyHistory } from "@/lib/api";
+import { useLocalStorage } from "@/hooks/useLocalStorage"; // Make sure this path is correct
+import ThemeToggle from "@/components/ui/ThemeToggle"; // Make sure this path is correct
 
 const Dashboard = () => {
   const [marketSummary, setMarketSummary] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   
-  // --- NEW STATE FOR THE INDEX CHART ---
   const [indexChartData, setIndexChartData] = useState([]);
   const [isChartLoading, setIsChartLoading] = useState(true);
+
+  // Get the dark mode state from useLocalStorage.
+  // This hook call ensures this component also knows the current theme status
+  // without directly managing the toggle logic.
+  const [isDarkMode] = useLocalStorage<boolean>('theme_dark_mode', false); 
 
   useEffect(() => {
     const loadDashboardData = async () => {
@@ -22,7 +28,6 @@ const Dashboard = () => {
       setMarketSummary(summary || []);
       setIsLoading(false);
 
-      // --- NEW LOGIC TO BUILD THE INDEX ---
       if (summary && summary.length > 0) {
         setIsChartLoading(true);
         
@@ -84,10 +89,13 @@ const Dashboard = () => {
             <div>
               <div className="flex items-center gap-4"> <SidebarTrigger /> <div> <h1 className="text-2xl font-bold text-foreground">Market Dashboard</h1> <p className="text-sm text-muted-foreground">A high-level overview of today's market health</p> </div> </div>
             </div>
-            {/* <div className="flex items-center gap-3">
-              <Button variant="ghost" size="icon"><Bell className="h-5 w-5" /></Button>
-              <Button variant="ghost" size="icon"><User className="h-5 w-5" /></Button>
-            </div> */}
+            <div className="flex items-center gap-3">
+              {/* --- Theme Toggle Component --- */}
+              <ThemeToggle />
+              {/* Optional Bell and User icons */}
+              {/* <Button variant="ghost" size="icon"><Bell className="h-5 w-5" /></Button>
+              <Button variant="ghost" size="icon"><User className="h-5 w-5" /></Button> */}
+            </div>
           </header>
 
           <main className="flex-1 p-6 space-y-6">
@@ -100,12 +108,13 @@ const Dashboard = () => {
             
             <div className="h-[50vh]">
               <StockPerformanceChart
-                data={indexChartData}
+                data={indexChartData} // This was changed from 'datasets' in your previous example to 'data' here
                 title="Market Index Performance (Top 10 by Volume)"
                 isLoading={isChartLoading}
-                // These props are required but have no effect on a single-line index chart
+                // Pass dark mode state to the chart component
+                isDarkMode={isDarkMode} 
                 activeTimeframe={'D'}
-                onTimeframeChange={() => {}}
+                onTimeframeChange={() => {}} // Chart does not have timeframe buttons on this page, so provide an empty function
               />
             </div>
           </main>
