@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { TrendingUp, TrendingDown, Activity, List } from "lucide-react";
+// Remove Sun, Moon imports from here as they are now in ThemeToggle
+import { TrendingUp, TrendingDown, Activity, List, Bell, User } from "lucide-react"; 
 import { MetricCard } from "@/components/MetricCard";
 import { MarketSummaryTable } from "@/components/MarketSummaryTable";
 import { StockPerformanceChart } from "@/components/StockPerformanceChart";
@@ -8,9 +9,12 @@ import { MarketPieChart, PieChartDataPoint } from "@/components/MarketPieChart";
 import { SidebarProvider, SidebarTrigger, SidebarInset } from "@/components/ui/sidebar";
 import { StockSidebar } from "@/components/StockSidebar";
 import { Button } from "@/components/ui/button";
-import { Bell, User } from "lucide-react";
 import { getMarketSummary, getMarketMovers, getCompanyHistory, getSectorDistribution } from "@/lib/api";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { useLocalStorage } from "@/hooks/useLocalStorage"; // Keep this for other uses if any, but dark mode specific state is gone.
+
+// --- Import the new ThemeToggle component ---
+import ThemeToggle from "@/components/ui/ThemeToggle"; 
+// ---------------------------------------------
 
 // Define the shape of our sorting state
 interface SortConfig {
@@ -27,25 +31,30 @@ const Index = () => {
   const [chartData, setChartData] = useState([]);
   const [isChartLoading, setIsChartLoading] = useState(true);
   
-  // New state for sorting and watchlist
+  // State for sorting and watchlist
   const [sortConfig, setSortConfig] = useState<SortConfig>({ key: 'name', order: 'asc' });
-  const [watchlist, setWatchlist] = useLocalStorage<string[]>('stock_watchlist', []);
+  // This useLocalStorage might still be needed for 'stock_watchlist'
+  const [watchlist, setWatchlist] = useLocalStorage<string[]>('stock_watchlist', []); 
 
-  // Effect to load market summary data, now triggered by sorting changes
+  // --- REMOVED DARK MODE SPECIFIC STATE AND EFFECTS FROM HERE ---
+  // const [isDarkMode, setIsDarkMode] = useLocalStorage<boolean>('theme_dark_mode', false);
+  // useEffect(() => { /* ... dark mode logic ... */ }, [isDarkMode]);
+  // const toggleDarkMode = () => { /* ... dark mode logic ... */ };
+  // --- END REMOVED SECTION ---
+
+
+  // Effect to load market summary data, triggered by sorting changes
   useEffect(() => {
     const loadMarketData = async () => {
-      // Note: We are not setting a loading state here to avoid a full-page loader on sort.
-      // A loading state could be added to the table component itself if desired.
       const summary = await getMarketSummary(sortConfig.key, sortConfig.order);
       setMarketSummary(summary || []);
 
-      // Only set the selected stock on the initial load, not on re-sorts
       if (!selectedStock && summary?.length > 0) {
         setSelectedStock(summary[0]);
       }
     };
     loadMarketData();
-  }, [sortConfig]); // Re-fetches whenever the sort configuration changes
+  }, [sortConfig]); 
 
   // Effect for initial load of non-sorting data (Movers, Sectors)
   useEffect(() => {
@@ -100,8 +109,20 @@ const Index = () => {
         <StockSidebar />
         <SidebarInset className="flex-1">
           <header className="flex items-center justify-between p-6 border-b bg-card">
-            <div className="flex items-center gap-4"> <SidebarTrigger /> <div> <h1 className="text-2xl font-bold text-foreground">Markets</h1> <p className="text-sm text-muted-foreground">Live Market Overview</p> </div> </div>
-            {/* <div className="flex items-center gap-3"> <Button variant="ghost" size="icon"><Bell className="h-5 w-5" /></Button> <Button variant="ghost" size="icon"><User className="h-5 w-5" /></Button> </div> */}
+            <div className="flex items-center gap-4"> 
+              <SidebarTrigger /> 
+              <div> 
+                <h1 className="text-2xl font-bold text-foreground">Markets</h1>
+                <p className="text-sm text-muted-foreground">Live Market Overview</p>
+              </div> 
+            </div>
+            <div className="flex items-center gap-3"> 
+              {/* --- Use the new ThemeToggle component here --- */}
+              <ThemeToggle />
+              {/* ----------------------------------------------- */}
+              <Button variant="ghost" size="icon"><Bell className="h-5 w-5" /></Button> 
+              <Button variant="ghost" size="icon"><User className="h-5 w-5" /></Button> 
+            </div>
           </header>
 
           <main className="flex-1 p-6 space-y-6">
