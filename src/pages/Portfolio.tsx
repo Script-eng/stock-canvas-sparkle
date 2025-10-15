@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { StockSidebar } from "@/components/StockSidebar";
 import { Button } from "@/components/ui/button";
@@ -7,7 +7,9 @@ import { MarketSummaryTable } from "@/components/MarketSummaryTable";
 import { StockPerformanceChart } from "@/components/StockPerformanceChart"; 
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { getMarketSummary, getCompanyHistory } from "@/lib/api";
-import ThemeToggle from "@/components/ui/ThemeToggle"; // Import the ThemeToggle component
+// --- Using the user-provided import path for ThemeToggle ---
+import ThemeToggle from "@/components/ui/ThemeToggle"; 
+// -----------------------------------------------------------
 
 const Portfolio = () => {
   const [marketSummary, setMarketSummary] = useState([]);
@@ -29,24 +31,31 @@ const Portfolio = () => {
     const loadMarketData = async () => {
       setIsLoading(true);
       const summary = await getMarketSummary();
-      setMarketSummary(summary || []);
+      setMarketSummary(summary || []); // Ensure summary is always an array
       setIsLoading(false);
     };
     loadMarketData();
-  }, []);
+  }, []); // Run once on mount
 
   // Filter the full market summary to get only the watched stocks
-  const watchedStocks = marketSummary.filter(stock => watchlist.includes(stock.code));
+  // Memoize this to prevent unnecessary re-renders of children
+  const watchedStocks = useMemo(() => {
+    return marketSummary.filter(stock => watchlist.includes(stock.code));
+  }, [marketSummary, watchlist]);
 
   // --- NEW EFFECT TO SELECT THE FIRST STOCK ---
   // When the list of watched stocks is available, select the first one by default.
   useEffect(() => {
+    // Only set if watchedStocks has items AND no stock is currently selected
     if (watchedStocks.length > 0 && !selectedStock) {
       setSelectedStock(watchedStocks[0]);
-    } else if (watchedStocks.length === 0) {
-      setSelectedStock(null); // Clear selection if watchlist is empty
+    } 
+    // If watchlist becomes empty and a stock was selected, clear the selection
+    else if (watchedStocks.length === 0 && selectedStock) { 
+      setSelectedStock(null);
+      setChartData([]); // Clear chart if selection is cleared
     }
-  }, [watchedStocks, selectedStock]);
+  }, [watchedStocks, selectedStock]); // Dependencies: re-run if watchlist changes or selectedStock is externally cleared
 
   // --- NEW EFFECT TO FETCH CHART DATA ---
   // Re-fetches data whenever the selected stock or timeframe changes.
@@ -57,14 +66,15 @@ const Portfolio = () => {
         return;
       }
       setIsChartLoading(true);
-      // Assuming getCompanyHistory([selectedStock]) returns HistoryDataPoint[]
+      
       const history = await getCompanyHistory([selectedStock], selectedTimeframe);
-      // `history` will be an array of `HistoryDataPoint`
-      setChartData(history);
+      // --- Ensure chartData is always an array ---
+      setChartData(history || []); 
+      // ------------------------------------------
       setIsChartLoading(false);
     };
     loadChartData();
-  }, [selectedStock, selectedTimeframe]);
+  }, [selectedStock, selectedTimeframe]); // Dependencies: re-run if selectedStock or timeframe changes
 
   const handleWatchlistToggle = (stockCode: string) => {
     const isInWatchlist = watchlist.includes(stockCode);
@@ -103,11 +113,9 @@ const Portfolio = () => {
             {isLoading ? (
               <div className="flex items-center justify-center h-96 text-muted-foreground"><p>Loading watchlist data...</p></div>
             ) : watchlist.length === 0 ? (
-              <div className="flex items-center justify-center h-96 border-2 border-dashed rounded-lg bg-card border-border"> {/* Added bg-card, border-border */}
-                <div className="text-center text-muted-foreground">
-                  <p className="font-semibold">Your watchlist is empty.</p>
-                  <p className="text-sm">You can add stocks by clicking the star icon on the Markets or Analytics pages.</p>
-                </div>
+              <div className="flex flex-col items-center justify-center h-96 border-2 border-dashed rounded-lg bg-card border-border p-4 text-center space-y-2"> {/* Added bg-card, border-border, p-4, text-center, space-y-2 */}
+                <p className="font-semibold text-foreground">Your watchlist is empty.</p>
+                <p className="text-sm text-muted-foreground">You can add stocks by clicking the star icon on the Markets or Analytics pages.</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
