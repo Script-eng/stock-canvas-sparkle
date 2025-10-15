@@ -7,7 +7,7 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Analytics from "./pages/Analytics";
 import Dashboard from "./pages/Dashboard";
-import Portfolio from "./pages/Portfolio";
+// import Portfolio from "./pages/Portfolio";
 import Activity from "./pages/Activity";
 import LiveMarket from "./pages/LiveMarket";
 import WorkInProgress from "./pages/WorkInProgress";
@@ -28,7 +28,7 @@ const App = () => (
           {/* Other routes can be added here */}
           <Route path="/analytics" element={<Analytics />} />
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/portfolio" element={<Portfolio />} />
+          {/* <Route path="/portfolio" element={<Portfolio />} /> */}
           <Route path="/activity" element={<Activity />} />
           <Route path="/404" element={<NotFound />} />
           <Route path="*" element={<WorkInProgress />} />
