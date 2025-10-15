@@ -4,9 +4,10 @@ import { StockSidebar } from "@/components/StockSidebar";
 import { Button } from "@/components/ui/button";
 import { Bell, User } from "lucide-react";
 import { getLiveMarketData } from '@/lib/api';
-import LiveMarket from "@/components/LiveMarket";
+import LiveMarket from "@/components/LiveMarket"; // The actual table component
+import ThemeToggle from "@/components/ui/ThemeToggle"; // Import the ThemeToggle component
 
-const Dashboard = () => {
+const LiveMarketsPage = () => { // Renamed from Dashboard to avoid confusion and reflect its content
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-background">
@@ -21,18 +22,21 @@ const Dashboard = () => {
               <div className="flex items-center gap-4"> <SidebarTrigger /> <div> <h1 className="text-2xl font-bold text-foreground">Live Market</h1> <p className="text-sm text-muted-foreground">Real-time stock prices and market movements</p> </div> </div>
             </div>
             <div className="flex items-center gap-3">
-              {/* <Button variant="ghost" size="icon">
+              {/* --- Theme Toggle --- */}
+              <ThemeToggle />
+              {/* --- Optional Bell and User icons --- */}
+              <Button variant="ghost" size="icon">
                 <Bell className="h-5 w-5" />
               </Button>
               <Button variant="ghost" size="icon">
                 <User className="h-5 w-5" />
-              </Button> */}
+              </Button>
             </div>
           </header>
 
           {/* Live Market Table */}
           <main className="flex-1 p-6">
-            <LiveMarket />
+            <LiveMarket /> {/* This is the component you need to style */}
           </main>
         </SidebarInset>
       </div>
@@ -40,4 +44,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default LiveMarketsPage;
