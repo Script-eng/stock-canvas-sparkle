@@ -41,7 +41,7 @@ const formatNumber = (
   return '--';
 };
 
-// ------------------ Row ------------------
+// ------------------ MarketRow Component (UPDATED FOR DARK MODE) ------------------
 function MarketRow({ stock, onClick, isEven }: { stock: LiveStock; onClick: (s: LiveStock) => void; isEven: boolean }) {
   const [flash, setFlash] = useState(false);
 
@@ -51,30 +51,41 @@ function MarketRow({ stock, onClick, isEven }: { stock: LiveStock; onClick: (s: 
     return () => clearTimeout(t);
   }, [stock.latest_price]);
 
+  // Use theme-aware colors for price changes
   const priceColor =
-    stock.change_direction === 'UP' ? 'text-green-600' : stock.change_direction === 'DOWN' ? 'text-red-600' : 'text-gray-600';
+    stock.change_direction === 'UP' ? 'text-success' : stock.change_direction === 'DOWN' ? 'text-destructive' : 'text-foreground';
 
-  const bgColor = isEven ? 'bg-gray-50/50' : 'bg-white';
-  const flashBg = flash ? 'bg-blue-50' : '';
+  // Use theme-aware background colors for table rows
+  // Tailwind's `even:` and `odd:` variants are more robust than `isEven` prop
+  // The `bg-background` will be your base page color. `bg-muted` is a lighter/darker variant.
+  // Using `even:bg-muted/20` and `odd:bg-background` provides subtle row distinction.
+  const rowBgClass = isEven ? 'bg-muted/20' : 'bg-background'; // Keeping `isEven` for now, but `even:bg-muted/20` would be better on `<tr>`
+
+  // Flash effect background, using primary theme color for emphasis
+  const flashBg = flash ? 'bg-primary/10' : ''; 
 
   return (
     <tr
-      className={`${bgColor} ${flashBg} hover:bg-blue-50 cursor-pointer transition-colors duration-300 border-b`}
+      // Apply theme-aware classes
+      className={`${rowBgClass} ${flashBg} hover:bg-muted/50 cursor-pointer transition-colors duration-300 border-b border-border`}
       onClick={() => onClick(stock)}
     >
       <td className="px-4 py-3">
-        <div className="font-bold text-gray-900">{stock.symbol}</div>
-        <div className="text-xs text-gray-500 truncate max-w-[160px]">{stock.name}</div>
+        <div className="font-bold text-foreground">{stock.symbol}</div> {/* Use foreground for main text */}
+        <div className="text-xs text-muted-foreground truncate max-w-[160px]">{stock.name}</div> {/* Use muted-foreground for secondary text */}
       </td>
-      <td className="px-4 py-3 text-gray-700">{formatNumber(stock.prev_close, 2, true)}</td>
-      <td className="px-4 py-3 text-gray-700">{formatNumber(stock.latest_price, 2, true)}</td>
+      <td className="px-4 py-3 text-foreground">{formatNumber(stock.prev_close, 2, true)}</td> {/* Use foreground */}
+      <td className="px-4 py-3 text-foreground">{formatNumber(stock.latest_price, 2, true)}</td> {/* Use foreground */}
       <td className={`px-4 py-3 font-medium ${priceColor}`}>
         <span className="flex items-center gap-1">
           {stock.change_direction === 'UP' && (
-        <ArrowUp className="w-4 h-4 text-green-600" />
+            <ArrowUp className="w-4 h-4 text-success" />
           )}
           {stock.change_direction === 'DOWN' && (
-        <ArrowDown className="w-4 h-4 text-red-600" />
+            <ArrowDown className="w-4 h-4 text-destructive" />
+          )}
+          {stock.change_direction === 'FLAT' && (
+            <Equal className="w-4 h-4 text-muted-foreground" />
           )}
           {formatNumber(stock.change_abs, 2, true)}
         </span>
@@ -82,46 +93,21 @@ function MarketRow({ stock, onClick, isEven }: { stock: LiveStock; onClick: (s: 
       <td className={`px-4 py-3 font-medium ${priceColor}`}>
         <span className="flex items-center gap-1">
           {stock.change_direction === 'UP' && '+'}
-          {stock.change_direction === 'DOWN' && '-'}
+          {stock.change_direction === 'DOWN' && ''} {/* No '-' needed as formatNumber handles negative signs */}
           {formatNumber(stock.change_pct, 2, true)}%
         </span>
       </td>
 
-
-
-      <td className="px-4 py-3 text-gray-700">{formatNumber(stock.high, 2, true)}</td>
-      <td className="px-4 py-3 text-gray-700">{formatNumber(stock.low, 2, true)}</td>
-      <td className="px-4 py-3 text-gray-700">{formatNumber(stock.avg_price, 2, true)}</td>
-      <td className="px-4 py-3 text-gray-700">{formatNumber(stock.volume, 0, true)}</td>
-      {/* <td className="px-4 py-3 text-gray-700">{formatLargeNumber(stock.volume)}</td> */}
-      <td className="px-4 py-3 text-xs text-gray-500">{stock.trade_time || '--'}</td>
+      <td className="px-4 py-3 text-foreground">{formatNumber(stock.high, 2, true)}</td> {/* Use foreground */}
+      <td className="px-4 py-3 text-foreground">{formatNumber(stock.low, 2, true)}</td> {/* Use foreground */}
+      <td className="px-4 py-3 text-foreground">{formatNumber(stock.avg_price, 2, true)}</td> {/* Use foreground */}
+      <td className="px-4 py-3 text-foreground">{formatNumber(stock.volume, 0, true)}</td> {/* Use foreground */}
+      <td className="px-4 py-3 text-xs text-muted-foreground">{stock.trade_time || '--'}</td> {/* Use muted-foreground */}
     </tr>
   );
 }
 
-// ------------------ Detailed Card ------------------
-// function DetailedStockCard({ stock, onBack }: { stock: LiveStock; onBack: () => void }) {
-//   return (
-//     <div className="max-w-7xl mx-auto px-6 py-6 space-y-6">
-//       <div className="flex items-center justify-between">
-//         <div className="flex items-center space-x-4">
-//           <Button variant="outline" onClick={onBack} className="flex items-center gap-2">
-//             <ArrowLeft className="w-4 h-4" /> Back to Market
-//           </Button>
-//           <div>
-//             <h1 className="text-3xl font-bold text-gray-900">{stock.symbol}</h1>
-//             <p className="text-lg text-gray-600">{stock.name}</p>
-//           </div>
-//         </div>
-//       </div>
-//       <Card>
-//         <CardContent className="p-6">Displaying details for {stock.name || stock.symbol}</CardContent>
-//       </Card>
-//     </div>
-//   );
-// }
-
-// ------------------ LiveMarket (template only; no sidebar) ------------------
+// ------------------ LiveMarket Component (UPDATED FOR DARK MODE) ------------------
 const LiveMarket: React.FC = () => {
   const [liveData, setLiveData] = useState<LiveStock[]>([]);
   const [marketStatus, setMarketStatus] = useState<'open' | 'closed' | 'pre-open' | 'loading' | 'error'>('loading');
@@ -137,21 +123,22 @@ const LiveMarket: React.FC = () => {
         const response: any = await getLiveMarketData();
         if (response && Array.isArray(response.data)) {
           setLiveData(response.data);
+          setLastUpdated(new Date()); // Update last updated time on successful fetch
         } else if (Array.isArray(response)) {
-          // setLiveData(response as LiveStock[]);
-          // setLastUpdated(new Date());
-
+          // Fallback if API response structure is sometimes directly an array
+          setLiveData(response as LiveStock[]);
+          setLastUpdated(new Date());
         }
-        // setLastUpdated(new Date());
       } catch (e) {
         console.error('Error fetching live market data:', e);
+        // Optionally set status to error or keep previous data
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchData();
-    const id = setInterval(fetchData, 5000);
+    const id = setInterval(fetchData, 5000); // Poll every 5 seconds
     return () => clearInterval(id);
   }, []);
 
@@ -166,7 +153,7 @@ const LiveMarket: React.FC = () => {
       }
     };
     fetchStatus();
-    const statusId = setInterval(fetchStatus, 60000); // every minute
+    const statusId = setInterval(fetchStatus, 60000); // Poll every minute
     return () => clearInterval(statusId);
   }, []);
 
@@ -181,59 +168,58 @@ const LiveMarket: React.FC = () => {
         data.sort((a, b) => a.symbol.localeCompare(b.symbol));
         break;
 
-case 'gainers':
-  data.sort((a, b) => {
-    const getGroup = (s: LiveStock) => {
-      if (s.change_direction === 'UP') return 0;
-      if (!s.change_direction || s.change_direction === 'FLAT') return 1;
-      return 2; // DOWN
-    };
+      case 'gainers':
+        data.sort((a, b) => {
+          const getGroup = (s: LiveStock) => {
+            if (s.change_direction === 'UP') return 0;
+            if (!s.change_direction || s.change_direction === 'FLAT') return 1;
+            return 2; // DOWN
+          };
 
-    const groupA = getGroup(a);
-    const groupB = getGroup(b);
+          const groupA = getGroup(a);
+          const groupB = getGroup(b);
 
-    if (groupA !== groupB) return groupA - groupB;
+          if (groupA !== groupB) return groupA - groupB;
 
-    // Inside UP group: highest to lowest change_pct
-    if (groupA === 0) return (b.change_pct ?? 0) - (a.change_pct ?? 0);
+          // Inside UP group: highest to lowest change_pct
+          if (groupA === 0) return (b.change_pct ?? 0) - (a.change_pct ?? 0);
 
-    // Inside FLAT group: maintain order or sort alphabetically if needed
-    if (groupA === 1) return 0;
+          // Inside FLAT group: maintain order or sort alphabetically if needed
+          if (groupA === 1) return 0;
 
-    // Inside DOWN group: least negative to most negative
-    return (a.change_pct ?? 0) - (b.change_pct ?? 0);
-  });
-  break;
-case 'losers':
-  data.sort((a, b) => {
-    const getGroup = (s: LiveStock) => {
-      if (s.change_direction === 'DOWN') return 0; // group 0 = losers
-      if (!s.change_direction || s.change_direction === 'FLAT') return 1; // group 1 = no change
-      return 2; // group 2 = gainers
-    };
+          // Inside DOWN group: least negative to most negative
+          return (a.change_pct ?? 0) - (b.change_pct ?? 0);
+        });
+        break;
+      case 'losers':
+        data.sort((a, b) => {
+          const getGroup = (s: LiveStock) => {
+            if (s.change_direction === 'DOWN') return 0; // group 0 = losers
+            if (!s.change_direction || s.change_direction === 'FLAT') return 1; // group 1 = no change
+            return 2; // group 2 = gainers
+          };
 
-    const groupA = getGroup(a);
-    const groupB = getGroup(b);
+          const groupA = getGroup(a);
+          const groupB = getGroup(b);
 
-    if (groupA !== groupB) return groupA - groupB;
+          if (groupA !== groupB) return groupA - groupB;
 
-    const pctA = a.change_pct ?? 0;
-    const pctB = b.change_pct ?? 0;
+          const pctA = a.change_pct ?? 0;
+          const pctB = b.change_pct ?? 0;
 
-    if (groupA === 0) {
-      // Sort losers: most negative first
-      return pctB - pctA; // -9.3 comes before -0.2
-    }
+          if (groupA === 0) {
+            // Sort losers: most negative first
+            return pctB - pctA; // -9.3 comes before -0.2
+          }
 
-    if (groupA === 2) {
-      // Sort gainers: smallest gain first
-      return pctA - pctB; // +0.2 comes before +5.1
-    }
+          if (groupA === 2) {
+            // Sort gainers: smallest gain first
+            return pctA - pctB; // +0.2 comes before +5.1
+          }
 
-    return 0; // No change — keep as is
-  });
-  break;
-
+          return 0; // No change — keep as is
+        });
+        break;
 
       case 'volume':
       default:
@@ -255,36 +241,36 @@ case 'losers':
     };
   }, [liveData]);
 
-  const currentStockData = useMemo(() => {
-    if (!selectedStock) return null;
-    return liveData.find((s) => s.symbol === selectedStock.symbol) || selectedStock;
-  }, [liveData, selectedStock]);
-
-  // if (selectedStock && currentStockData) {
-  //   return <DetailedStockCard stock={currentStockData} onBack={() => setSelectedStock(null)} />;
-  // }
+  // The DetailedStockCard is commented out, so this part isn't active
+  // const currentStockData = useMemo(() => {
+  //   if (!selectedStock) return null;
+  //   return liveData.find((s) => s.symbol === selectedStock.symbol) || selectedStock;
+  // }, [liveData, selectedStock]);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-
+    // Top-level container uses `bg-background` to adapt
+    <div className="min-h-screen bg-background text-foreground"> 
 
       {/* Content */}
       <div className="max-w-7xl mx-auto px-6 py-6">
         {/* KPI Cards */}
         <div>
           <div className="flex flex-wrap items-center gap-4 mb-4 w-full">
+            {/* Market Status Indicator - using theme-aware state colors */}
             <span
-              className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${
-                marketStatus === 'open'
-                  ? 'bg-green-100 text-green-700'
-                  : marketStatus === 'pre-open'
-                  ? 'bg-yellow-100 text-yellow-900'
-                  : marketStatus === 'closed'
-                  ? 'bg-gray-200 text-gray-600'
-                  : marketStatus === 'error'
-                  ? 'bg-red-100 text-red-700'
-                  : 'bg-blue-100 text-blue-700'
-              }`}
+              className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold 
+                ${
+                  marketStatus === 'open'
+                    ? 'bg-success/20 text-success' // Using success theme color
+                    : marketStatus === 'pre-open'
+                    ? 'bg-warning/20 text-warning' // Using warning theme color
+                    : marketStatus === 'closed'
+                    ? 'bg-muted/20 text-muted-foreground' // Using muted theme color
+                    : marketStatus === 'error'
+                    ? 'bg-destructive/20 text-destructive' // Using destructive theme color
+                    : 'bg-primary/20 text-primary' // Using primary theme color as a fallback
+                }`
+              }
             >
               {marketStatus === 'open'
                 ? 'Market Open'
@@ -298,110 +284,112 @@ case 'losers':
             </span>
             {lastUpdated && (
               <>
-                <span className="text-xs text-gray-500">{lastUpdated.toLocaleTimeString()}</span> 
+                <span className="text-xs text-muted-foreground">{lastUpdated.toLocaleTimeString()}</span> {/* Use muted-foreground */}
                 <div className="flex-1" />
-                <span className="text-xs text-gray-400">{lastUpdated.toLocaleDateString()}</span>
+                <span className="text-xs text-muted-foreground">{lastUpdated.toLocaleDateString()}</span> {/* Use muted-foreground */}
               </>
             )}
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <Card className="bg-gradient-to-r from-green-500 to-green-600 text-white">
+          {/* KPI Cards - adapted to use `bg-card` and theme-aware text colors */}
+          <Card className="bg-card text-foreground border border-border shadow-sm"> {/* Use bg-card, text-foreground, border-border */}
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-green-100 text-sm">Gainers</p>
-                  <p className="text-2xl font-bold">{marketStats.gainers}</p>
+                  <p className="text-muted-foreground text-sm">Gainers</p> {/* Use muted-foreground */}
+                  <p className="text-2xl font-bold text-success">{marketStats.gainers}</p> {/* Use text-success */}
                 </div>
-                <TrendingUp className="w-8 h-8" />
+                <TrendingUp className="w-8 h-8 text-success" /> {/* Use text-success */}
               </div>
             </CardContent>
           </Card>
-          <Card className="bg-gradient-to-r from-red-500 to-red-600 text-white">
+          <Card className="bg-card text-foreground border border-border shadow-sm"> {/* Use bg-card, text-foreground, border-border */}
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-red-100 text-sm">Losers</p>
-                  <p className="text-2xl font-bold">{marketStats.losers}</p>
+                  <p className="text-muted-foreground text-sm">Losers</p> {/* Use muted-foreground */}
+                  <p className="text-2xl font-bold text-destructive">{marketStats.losers}</p> {/* Use text-destructive */}
                 </div>
-                <TrendingDown className="w-8 h-8" />
+                <TrendingDown className="w-8 h-8 text-destructive" /> {/* Use text-destructive */}
               </div>
             </CardContent>
           </Card>
-          <Card className="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
+          <Card className="bg-card text-foreground border border-border shadow-sm"> {/* Use bg-card, text-foreground, border-border */}
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-blue-100 text-sm">Total Volume</p>
-                  <p className="text-2xl font-bold">{formatNumber(marketStats.totalVolume, 0, true)}</p>
-                  {/* <p className="text-2xl font-bold">{formatLargeNumber(marketStats.totalVolume)}</p> */}
+                  <p className="text-muted-foreground text-sm">Total Volume</p> {/* Use muted-foreground */}
+                  <p className="text-2xl font-bold text-primary">{formatNumber(marketStats.totalVolume, 0, true)}</p> {/* Use text-primary */}
                 </div>
-                <Activity className="w-8 h-8" />
+                <Activity className="w-8 h-8 text-primary" /> {/* Use text-primary */}
               </div>
             </CardContent>
           </Card>
-          <Card className="bg-gradient-to-r from-purple-500 to-purple-600 text-white">
+          <Card className="bg-card text-foreground border border-border shadow-sm"> {/* Use bg-card, text-foreground, border-border */}
             <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-purple-100 text-sm">Turnover</p>
-                  <p className="text-2xl font-bold">
+                  <p className="text-muted-foreground text-sm">Turnover</p> {/* Use muted-foreground */}
+                  <p className="text-2xl font-bold text-foreground"> {/* Use foreground for neutral color */}
                   {formatNumber(liveData.reduce((sum, s) => sum + ((s.avg_price ?? 0) * (s.volume ?? 0)), 0), 2, true)}
                   </p>
                 </div>
-                <p> KES</p>
+                <p className="text-muted-foreground"> KES</p> {/* Use muted-foreground */}
                 </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Controls */}
-        <div className="flex items-center justify-between gap-4 mb-6 bg-white p-4 rounded-lg shadow-sm">
+        {/* Controls - adapted to use `bg-card` and theme-aware colors */}
+        <div className="flex items-center justify-between gap-4 mb-6 bg-card p-4 rounded-lg shadow-sm border border-border"> {/* Use bg-card, border-border */}
           <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground h-4 w-4" /> {/* Use muted-foreground */}
             <Input
               placeholder="Search stocks..."
-              className="pl-10"
+              className="pl-10 bg-input text-foreground border-border placeholder:text-muted-foreground" // Use bg-input, text-foreground, border-border
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
           <Select value={sortOrder} onValueChange={(a: 'alpha' | 'volume' | 'gainers' | 'losers') => setSortOrder(a)}>
-            <SelectTrigger className="w-[200px]">
+            <SelectTrigger className="w-[200px] bg-card text-foreground border-border [&>span]:text-foreground"> {/* Use bg-card, text-foreground */}
               <SelectValue placeholder="Sort by..." />
             </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="alpha">Alphabetical</SelectItem>
-              <SelectItem value="volume">Most Active</SelectItem>
-              <SelectItem value="gainers">Top Gainers</SelectItem>
-              <SelectItem value="losers">Top Losers</SelectItem>
+            {/* SelectContent and SelectItem should already adapt if they use theme-aware components */}
+            <SelectContent className="bg-popover text-popover-foreground border-border"> 
+              <SelectItem value="alpha" className="hover:bg-accent hover:text-accent-foreground">Alphabetical</SelectItem>
+              <SelectItem value="volume" className="hover:bg-accent hover:text-accent-foreground">Most Active</SelectItem>
+              <SelectItem value="gainers" className="hover:bg-accent hover:text-accent-foreground">Top Gainers</SelectItem>
+              <SelectItem value="losers" className="hover:bg-accent hover:text-accent-foreground">Top Losers</SelectItem>
             </SelectContent>
           </Select>
         </div>
 
-        {/* Table */}
+        {/* Table - adapted to use theme-aware colors */}
         {isLoading ? (
-          <div className="text-center py-20 text-gray-600">Loading Live Market Data...</div>
+          <div className="text-center py-20 text-muted-foreground">Loading Live Market Data...</div> // Use muted-foreground
         ) : (
-          <Card className="overflow-hidden">
+          <Card className="overflow-hidden bg-card text-card-foreground border border-border shadow-sm"> {/* Use bg-card, text-card-foreground, border-border */}
             <div className="overflow-x-auto">
               <table className="min-w-full">
-                <thead className="bg-gray-100 border-b">
+                <thead className="bg-muted border-b border-border"> {/* Use bg-muted, border-border */}
                   <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Security</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Prev Close</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Latest Price</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Change</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Change %</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">High</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Low</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Avg Price</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Volume</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Security</th> {/* Use muted-foreground */}
+                    <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Prev Close</th> {/* Use muted-foreground */}
+                    <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Latest Price</th> {/* Use muted-foreground */}
+                    <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Change</th> {/* Use muted-foreground */}
+                    <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Change %</th> {/* Use muted-foreground */}
+                    <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">High</th> {/* Use muted-foreground */}
+                    <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Low</th> {/* Use muted-foreground */}
+                    <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Avg Price</th> {/* Use muted-foreground */}
+                    <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Volume</th> {/* Use muted-foreground */}
+                    <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Time</th> {/* Use muted-foreground */}
                   </tr>
                 </thead>
                 <tbody>
                   {sortedAndFilteredData.map((stock, index) => (
+                    // MarketRow component already updated
                     <MarketRow key={stock.symbol} stock={stock} onClick={setSelectedStock} isEven={index % 2 === 0} />
                   ))}
                 </tbody>
