@@ -1,35 +1,3 @@
-// import { useState, useEffect } from 'react';
-
-// function getValueFromStorage<T>(key: string, defaultValue: T): T {
-//   // Getting stored value
-//   if (typeof window !== 'undefined') {
-//     const saved = window.localStorage.getItem(key);
-//     if (saved) {
-//       try {
-//         return JSON.parse(saved) as T;
-//       } catch (error) {
-//         console.error("Error parsing JSON from localStorage", error);
-//         return defaultValue;
-//       }
-//     }
-//   }
-//   return defaultValue;
-// }
-
-// export function useLocalStorage<T>(key: string, defaultValue: T): [T, React.Dispatch<React.SetStateAction<T>>] {
-//   const [value, setValue] = useState<T>(() => {
-//     return getValueFromStorage(key, defaultValue);
-//   });
-
-//   useEffect(() => {
-//     // Storing value
-//     window.localStorage.setItem(key, JSON.stringify(value));
-//   }, [key, value]);
-
-//   return [value, setValue];
-// }
-
-
 // src/hooks/useLocalStorage.ts
 import { useState, useEffect, useCallback } from 'react';
 
@@ -44,12 +12,12 @@ type SetValue<T> = (value: T | ((val: T) => T)) => void;
 export function useLocalStorage<T>(
   key: string,
   initialValue: T,
-  expiryInDays?: number // New optional parameter for expiry duration
+  expiryInDays?: number // Optional parameter for expiry duration in days
 ): [T, SetValue<T>] {
 
   // Memoize the function to calculate the expiry timestamp
   const calculateExpiry = useCallback((days?: number) => {
-    if (days === undefined || days === null) return undefined;
+    if (days === undefined || days === null) return undefined; // No expiry if days is not provided
     const now = new Date();
     now.setDate(now.getDate() + days); // Add the specified number of days
     return now.getTime(); // Return as Unix timestamp (milliseconds)
