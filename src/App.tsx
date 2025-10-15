@@ -21,15 +21,15 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          {/* <Route path="/" element={<Index />} /> */}
+          <Route path="/" element={<Index />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          {/* <Route path="/live-market" element={<LiveMarket />} /> */}
-          <Route path="/" element={<LiveMarket />} />
+          <Route path="/live-market" element={<LiveMarket />} />
+          {/* <Route path="/" element={<LiveMarket />} /> */}
           {/* Other routes can be added here */}
-          {/* <Route path="/analytics" element={<Analytics />} /> */}
-          {/* <Route path="/dashboard" element={<Dashboard />} /> */}
-          {/* <Route path="/portfolio" element={<Portfolio />} /> */}
-          {/* <Route path="/activity" element={<Activity />} /> */}
+          <Route path="/analytics" element={<Analytics />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/portfolio" element={<Portfolio />} />
+          <Route path="/activity" element={<Activity />} />
           <Route path="/404" element={<NotFound />} />
           <Route path="*" element={<WorkInProgress />} />
         </Routes>
