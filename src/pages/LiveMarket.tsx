@@ -24,13 +24,13 @@ const LiveMarketsPage = () => { // Renamed from Dashboard to avoid confusion and
             <div className="flex items-center gap-3">
               {/* --- Theme Toggle --- */}
               <ThemeToggle />
-              {/* --- Optional Bell and User icons --- */}
+              {/* --- Optional Bell and User icons ---
               <Button variant="ghost" size="icon">
                 <Bell className="h-5 w-5" />
               </Button>
               <Button variant="ghost" size="icon">
                 <User className="h-5 w-5" />
-              </Button>
+              </Button> */}
             </div>
           </header>
 

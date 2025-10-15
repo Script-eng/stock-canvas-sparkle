@@ -36,12 +36,6 @@ const Index = () => {
   // This useLocalStorage might still be needed for 'stock_watchlist'
   const [watchlist, setWatchlist] = useLocalStorage<string[]>('stock_watchlist', []); 
 
-  // --- REMOVED DARK MODE SPECIFIC STATE AND EFFECTS FROM HERE ---
-  // const [isDarkMode, setIsDarkMode] = useLocalStorage<boolean>('theme_dark_mode', false);
-  // useEffect(() => { /* ... dark mode logic ... */ }, [isDarkMode]);
-  // const toggleDarkMode = () => { /* ... dark mode logic ... */ };
-  // --- END REMOVED SECTION ---
-
 
   // Effect to load market summary data, triggered by sorting changes
   useEffect(() => {
@@ -120,8 +114,8 @@ const Index = () => {
               {/* --- Use the new ThemeToggle component here --- */}
               <ThemeToggle />
               {/* ----------------------------------------------- */}
-              <Button variant="ghost" size="icon"><Bell className="h-5 w-5" /></Button> 
-              <Button variant="ghost" size="icon"><User className="h-5 w-5" /></Button> 
+              {/* <Button variant="ghost" size="icon"><Bell className="h-5 w-5" /></Button>  */}
+              {/* <Button variant="ghost" size="icon"><User className="h-5 w-5" /></Button>  */}
             </div>
           </header>
 
