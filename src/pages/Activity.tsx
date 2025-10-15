@@ -7,6 +7,9 @@ import { Bell, User } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getMarketMovers } from "@/lib/api";
+import { useLocalStorage } from "@/hooks/useLocalStorage"; // Keep this for other uses if any, but dark mode specific state is gone.
+
+import ThemeToggle from "@/components/ui/ThemeToggle"; 
 
 const Activity = () => {
   const [movers, setMovers] = useState(null);
@@ -34,10 +37,11 @@ const Activity = () => {
             <div>
             <div className="flex items-center gap-4"> <SidebarTrigger /> <div> <h1 className="text-2xl font-bold text-foreground">Market Activity</h1> <p className="text-sm text-muted-foreground">A detailed look at today's top moving stocks</p> </div> </div>
             </div>
-            {/* <div className="flex items-center gap-3">
-              <Button variant="ghost" size="icon"><Bell className="h-5 w-5" /></Button>
-              <Button variant="ghost" size="icon"><User className="h-5 w-5" /></Button>
-            </div> */}
+            <div className="flex items-center gap-3">
+              <ThemeToggle />
+              {/* <Button variant="ghost" size="icon"><Bell className="h-5 w-5" /></Button> */}
+              {/* <Button variant="ghost" size="icon"><User className="h-5 w-5" /></Button> */}
+            </div>
           </header>
 
           <main className="flex-1 p-6 space-y-6">

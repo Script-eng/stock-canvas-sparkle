@@ -4,9 +4,10 @@ import { StockSidebar } from "@/components/StockSidebar";
 import { Button } from "@/components/ui/button";
 import { Bell, User } from "lucide-react";
 import { MarketSummaryTable } from "@/components/MarketSummaryTable";
-import { StockPerformanceChart } from "@/components/StockPerformanceChart"; // Import the chart
+import { StockPerformanceChart } from "@/components/StockPerformanceChart"; 
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { getMarketSummary, getCompanyHistory } from "@/lib/api";
+import ThemeToggle from "@/components/ui/ThemeToggle"; // Import the ThemeToggle component
 
 const Portfolio = () => {
   const [marketSummary, setMarketSummary] = useState([]);
@@ -18,6 +19,10 @@ const Portfolio = () => {
   const [selectedTimeframe, setSelectedTimeframe] = useState<'D' | 'ME' | 'YE'>('D');
   const [chartData, setChartData] = useState([]);
   const [isChartLoading, setIsChartLoading] = useState(false);
+
+  // --- Get the dark mode state from useLocalStorage ---
+  const [isDarkMode] = useLocalStorage<boolean>('theme_dark_mode', false); 
+  // --- End Dark Mode state retrieval ---
 
   // Effect to load the full market data once
   useEffect(() => {
@@ -52,7 +57,9 @@ const Portfolio = () => {
         return;
       }
       setIsChartLoading(true);
+      // Assuming getCompanyHistory([selectedStock]) returns HistoryDataPoint[]
       const history = await getCompanyHistory([selectedStock], selectedTimeframe);
+      // `history` will be an array of `HistoryDataPoint`
       setChartData(history);
       setIsChartLoading(false);
     };
@@ -75,19 +82,28 @@ const Portfolio = () => {
         <SidebarInset className="flex-1">
           <header className="flex items-center justify-between p-6 border-b bg-card">
             <div>
-                <div className="flex items-center gap-4"> <SidebarTrigger /> <div> <h1 className="text-2xl font-bold text-foreground">My Watchlist</h1> <p className="text-sm text-muted-foreground">A personalized list of stocks you are tracking</p> </div> </div>
+                <div className="flex items-center gap-4"> 
+                  <SidebarTrigger /> 
+                  <div> 
+                    <h1 className="text-2xl font-bold text-foreground">My Watchlist</h1> 
+                    <p className="text-sm text-muted-foreground">A personalized list of stocks you are tracking</p> 
+                  </div> 
+                </div>
             </div>
-            {/* <div className="flex items-center gap-3">
-              <Button variant="ghost" size="icon"><Bell className="h-5 w-5" /></Button>
-              <Button variant="ghost" size="icon"><User className="h-5 w-5" /></Button>
-            </div> */}
+            <div className="flex items-center gap-3">
+              {/* --- Theme Toggle Component --- */}
+              <ThemeToggle />
+              {/* Optional Bell and User icons */}
+              {/* <Button variant="ghost" size="icon"><Bell className="h-5 w-5" /></Button>
+              <Button variant="ghost" size="icon"><User className="h-5 w-5" /></Button> */}
+            </div>
           </header>
 
           <main className="flex-1 p-6">
             {isLoading ? (
-              <div className="flex items-center justify-center h-96"><p>Loading watchlist data...</p></div>
+              <div className="flex items-center justify-center h-96 text-muted-foreground"><p>Loading watchlist data...</p></div>
             ) : watchlist.length === 0 ? (
-              <div className="flex items-center justify-center h-96 border-2 border-dashed rounded-lg">
+              <div className="flex items-center justify-center h-96 border-2 border-dashed rounded-lg bg-card border-border"> {/* Added bg-card, border-border */}
                 <div className="text-center text-muted-foreground">
                   <p className="font-semibold">Your watchlist is empty.</p>
                   <p className="text-sm">You can add stocks by clicking the star icon on the Markets or Analytics pages.</p>
@@ -98,11 +114,14 @@ const Portfolio = () => {
                 {/* Left Column: Chart Area */}
                 <div>
                   <StockPerformanceChart
-                    datasets={chartData}
+                    // --- IMPORTANT: Use 'data' prop for single stock history ---
+                    data={chartData} 
                     title={`${selectedStock?.name || 'Select a Stock'} Performance`}
                     isLoading={isChartLoading}
                     activeTimeframe={selectedTimeframe}
                     onTimeframeChange={setSelectedTimeframe}
+                    // Pass dark mode state
+                    isDarkMode={isDarkMode} 
                   />
                 </div>
                 {/* Right Column: Watchlist Table */}
