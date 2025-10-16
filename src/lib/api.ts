@@ -1,36 +1,102 @@
-const HISTORICAL_API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL;
-const LIVE_API_URL =
-  import.meta.env.VITE_LIVE_API_URL;
-const LIVE_AUTH_URL =
-  import.meta.env.VITE_LIVE_AUTH_URL;
-const MARKET_STATUS_URL =
-  import.meta.env.VITE_MARKET_STATUS_URL;
+import { jwtDecode } from 'jwt-decode';
 
+const HISTORICAL_API_BASE_URL = import.meta.env.VITE_API_BASE_URL as string;
+const LIVE_API_URL = import.meta.env.VITE_LIVE_API_URL as string;
+const LIVE_AUTH_URL = import.meta.env.VITE_LIVE_AUTH_URL as string;
+const MARKET_STATUS_URL = import.meta.env.VITE_MARKET_STATUS_URL as string;
+const HISTORICAL_AUTH_LOGIN_URL = `${HISTORICAL_API_BASE_URL}/auth/token`; // Token endpoint for YOUR Flask backend
+
+// In-memory cache for the HISTORICAL data JWT (from your Flask backend)
+let historicalJwtToken: string | null = null;
+let historicalTokenExpiry: number | null = null; // Stored in milliseconds
+
+// In-memory cache for the LIVE data JWT (from api.softwarepulses.com)
 let liveJwtToken: string | null = null;
-let liveTokenExpiry: number | null = null;
+let liveTokenExpiry: number | null = null; // Stored in milliseconds
 
-// --- HISTORICAL AUTH (unchanged) ---
-const getAuthHeaders = () => {
-  const token = import.meta.env.VITE_API_SECRET_TOKEN;
-  if (!token) {
-    console.error(
-      "API secret token is missing. Please check your .env.local file."
-    );
-    return {};
-  }
-  return {
-    Authorization: `Bearer ${token}`,
-    "Content-Type": "application/json",
-  };
+// Key for storing the HISTORICAL JWT in localStorage
+const LOCAL_STORAGE_HISTORICAL_JWT_KEY = 'historicalAppJwtToken'; 
+
+// --- GENERIC UTILITIES ---
+const getStoredHistoricalJwt = (): string | null => localStorage.getItem(LOCAL_STORAGE_HISTORICAL_JWT_KEY);
+const setStoredHistoricalJwt = (token: string | null) => {
+  if (token) localStorage.setItem(LOCAL_STORAGE_HISTORICAL_JWT_KEY, token);
+  else localStorage.removeItem(LOCAL_STORAGE_HISTORICAL_JWT_KEY);
 };
 
-// --- GENERIC FETCH (historical + live uses this) ---
+// --- AUTHENTICATION FOR YOUR HISTORICAL BACKEND (Flask) ---
+async function getHistoricalToken(): Promise<string> {
+  const now = Date.now();
+
+  if (historicalJwtToken && historicalTokenExpiry && now < historicalTokenExpiry) return historicalJwtToken;
+
+  let storedToken = getStoredHistoricalJwt();
+  if (storedToken) {
+    try {
+      const decoded: { exp: number } = jwtDecode(storedToken);
+      const expiryTime = decoded.exp * 1000;
+      if (now < expiryTime) {
+        historicalJwtToken = storedToken;
+        historicalTokenExpiry = expiryTime;
+        return historicalJwtToken;
+      }
+      console.warn("Stored historical JWT token expired. Fetching a new one.");
+      setStoredHistoricalJwt(null);
+    } catch (error) {
+      console.error("Error decoding stored historical JWT token:", error);
+      setStoredHistoricalJwt(null);
+    }
+  }
+
+  try {
+    const res = await fetch(HISTORICAL_AUTH_LOGIN_URL, { method: "POST" });
+    if (!res.ok) throw new Error(`Failed to fetch JWT token from ${HISTORICAL_AUTH_LOGIN_URL}. Status: ${res.status}`);
+
+    const data = await res.json();
+    if (!data.token) throw new Error("No token received from historical backend.");
+
+    const newToken = data.token;
+    const decoded: { exp: number } = jwtDecode(newToken);
+    const newExpiryTime = decoded.exp * 1000;
+
+    historicalJwtToken = newToken;
+    historicalTokenExpiry = newExpiryTime;
+    setStoredHistoricalJwt(newToken);
+    console.log("Successfully fetched and stored new historical JWT token.");
+    return historicalJwtToken;
+  } catch (error) {
+    console.error("Historical backend authentication failed:", error);
+    throw error;
+  }
+}
+
+// Headers for HISTORICAL API calls
+const getHistoricalAuthHeaders = async () => {
+  try {
+    const token = await getHistoricalToken();
+    return {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    };
+  } catch (error) {
+    console.error("Failed to get JWT token for historical API calls:", error);
+    throw error;
+  }
+};
+
+// --- GENERIC FETCH ---
 const fetchFromAPI = async (fullUrl: string, headers: Record<string, string> = {}) => {
   try {
     const response = await fetch(fullUrl, { headers });
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      // Specific 401 handling for HISTORICAL API BASE URL only
+      if (response.status === 401 && fullUrl.startsWith(HISTORICAL_API_BASE_URL)) {
+          console.warn("Received 401 for historical API. Token might be invalid or expired. Clearing token and re-throwing.");
+          setStoredHistoricalJwt(null);
+          historicalJwtToken = null;
+          historicalTokenExpiry = null;
+      }
+      throw new Error(`HTTP error! status: ${response.status} - ${response.statusText}`);
     }
     return await response.json();
   } catch (error) {
@@ -39,27 +105,20 @@ const fetchFromAPI = async (fullUrl: string, headers: Record<string, string> = {
   }
 };
 
-// --- TOKEN HANDLER FOR LIVE DATA ---
+// --- TOKEN HANDLER FOR LIVE DATA (api.softwarepulses.com) ---
 async function getLiveToken(): Promise<string> {
   const now = Date.now();
-
-  // Reuse token if still valid
-  if (liveJwtToken && liveTokenExpiry && now < liveTokenExpiry) {
-    return liveJwtToken;
-  }
+  if (liveJwtToken && liveTokenExpiry && now < liveTokenExpiry) return liveJwtToken;
 
   const res = await fetch(LIVE_AUTH_URL, { method: "POST" });
-  if (!res.ok) {
-    throw new Error("Failed to fetch live JWT token");
-  }
+  if (!res.ok) throw new Error("Failed to fetch live JWT token");
 
   const data = await res.json();
   liveJwtToken = data.token;
 
-  // Decode expiry from JWT payload
   const [, payloadBase64] = liveJwtToken.split(".");
   const payload = JSON.parse(atob(payloadBase64));
-  liveTokenExpiry = payload.exp * 1000; // ms
+  liveTokenExpiry = payload.exp * 1000;
 
   return liveJwtToken!;
 }
@@ -67,35 +126,51 @@ async function getLiveToken(): Promise<string> {
 // ------------------ HISTORICAL DATA ------------------
 export const getMarketSummary = async (sortBy = "name", sortOrder = "asc") => {
   const endpoint = `/summary-table?sortBy=${sortBy}&sortOrder=${sortOrder}`;
-  const data = await fetchFromAPI(`${HISTORICAL_API_BASE_URL}${endpoint}`, getAuthHeaders());
-  return data?.rows || [];
+  try {
+    const headers = await getHistoricalAuthHeaders(); // Uses HISTORICAL token
+    const data = await fetchFromAPI(`${HISTORICAL_API_BASE_URL}${endpoint}`, headers);
+    return data?.rows || [];
+  } catch (error) {
+    console.error("Failed to fetch market summary due to authentication error:", error);
+    return [];
+  }
 };
 
 export const getMarketMovers = async () => {
   const endpoint = "/chart-data?agg=D";
-  const data = await fetchFromAPI(`${HISTORICAL_API_BASE_URL}${endpoint}`, getAuthHeaders());
-  if (!data || !data.data) return { gainers: [], losers: [] };
-  const gainers = data.data.filter((d: any) => d.performance === "Gainer");
-  const losers = data.data
-    .filter((d: any) => d.performance === "Loser")
-    .sort((a: any, b: any) => a.change_pct - b.change_pct);
-  return { gainers, losers };
+  try {
+    const headers = await getHistoricalAuthHeaders(); // Uses HISTORICAL token
+    const data = await fetchFromAPI(`${HISTORICAL_API_BASE_URL}${endpoint}`, headers);
+    if (!data || !data.data) return { gainers: [], losers: [] };
+    const gainers = data.data.filter((d: any) => d.performance === "Gainer");
+    const losers = data.data
+      .filter((d: any) => d.performance === "Loser")
+      .sort((a: any, b: any) => a.change_pct - b.change_pct);
+    return { gainers, losers };
+  } catch (error) {
+    console.error("Failed to fetch market movers due to authentication error:", error);
+    return { gainers: [], losers: [] };
+  }
 };
 
 export const getCompanyHistory = async (
   stocks: any[],
   agg: "D" | "ME" | "YE"
 ) => {
-  if (!stocks || stocks.length === 0) {
-    return [];
-  }
+  if (!stocks || stocks.length === 0) return [];
   const companyCodes = stocks.map((stock) => stock.code).join(",");
   const endpoint = `/chart-data?agg=${agg}&companies=${companyCodes}`;
-  const data = await fetchFromAPI(`${HISTORICAL_API_BASE_URL}${endpoint}`, getAuthHeaders());
-  return data?.datasets || [];
+  try {
+    const headers = await getHistoricalAuthHeaders(); // Uses HISTORICAL token
+    const data = await fetchFromAPI(`${HISTORICAL_API_BASE_URL}${endpoint}`, headers);
+    return data?.datasets || [];
+  } catch (error) {
+    console.error("Failed to fetch company history due to authentication error:", error);
+    return [];
+  }
 };
 
-// ------------------ MOCKED DATA ------------------
+// ------------------ MOCKED DATA (UNCHANGED) ------------------
 export const getSectorDistribution = async () => {
   return Promise.resolve([
     { name: "Agricultural", value: 25, color: "hsl(var(--primary))" },
@@ -106,10 +181,10 @@ export const getSectorDistribution = async () => {
   ]);
 };
 
-// ------------------ LIVE DATA ------------------
+// ------------------ LIVE DATA (NOW USES ITS OWN TOKEN) ------------------
 export const getLiveMarketData = async () => {
   try {
-    const token = await getLiveToken();
+    const token = await getLiveToken(); // Uses LIVE token from api.softwarepulses.com
     return await fetchFromAPI(LIVE_API_URL, {
       Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
@@ -120,10 +195,9 @@ export const getLiveMarketData = async () => {
   }
 };
 
-// Export market status seperately
 export const getMarketStatus = async () => {
   try {
-    const token = await getLiveToken();
+    const token = await getLiveToken(); // Uses LIVE token from api.softwarepulses.com
     const data = await fetchFromAPI(MARKET_STATUS_URL, {
       Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
@@ -134,3 +208,5 @@ export const getMarketStatus = async () => {
     return "unknown";
   }
 };
+
+export { getHistoricalToken as authenticateHistoricalBackend };
