@@ -10,6 +10,7 @@ import Dashboard from "./pages/Dashboard";
 // import Portfolio from "./pages/Portfolio";
 import Activity from "./pages/Activity";
 import LiveMarket from "./pages/LiveMarket";
+import Indices from "./pages/Indices";
 import WorkInProgress from "./pages/WorkInProgress";
 
 const queryClient = new QueryClient();
@@ -30,8 +31,9 @@ const App = () => (
           <Route path="/dashboard" element={<Dashboard />} />
           {/* <Route path="/portfolio" element={<Portfolio />} /> */}
           <Route path="/activity" element={<Activity />} />
+          <Route path="/indices" element={<Indices />} />
           <Route path="/404" element={<NotFound />} />
-          <Route path="*" element={<WorkInProgress />} />
+          {/* <Route path="*" element={<WorkInProgress />} /> */}
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
