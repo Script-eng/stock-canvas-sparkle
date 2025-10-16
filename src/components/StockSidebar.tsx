@@ -29,6 +29,8 @@ const navigationItems = [
   // { title: "Portfolio", url: "/portfolio", icon: Wallet },
   { title: "Analytics", url: "/analytics", icon: PieChart },
   { title: "Activity", url: "/activity", icon: Activity },
+  // Indices
+  { title: "Indices", url: "/indices", icon: BarChart3 },
 ]
 
 

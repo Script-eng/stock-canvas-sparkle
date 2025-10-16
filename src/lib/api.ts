@@ -170,6 +170,18 @@ export const getCompanyHistory = async (
   }
 };
 
+export const getIndices = async () => {
+  const endpoint = `/indices`;
+  try {
+    const headers = await getHistoricalAuthHeaders(); // Uses HISTORICAL token
+    const data = await fetchFromAPI(`${HISTORICAL_API_BASE_URL}${endpoint}`, headers);
+    return data?.indices || [];
+  } catch (error) {
+    console.error("Failed to fetch indices due to authentication error:", error);
+    return [];
+  }
+};
+
 // ------------------ MOCKED DATA (UNCHANGED) ------------------
 export const getSectorDistribution = async () => {
   return Promise.resolve([
