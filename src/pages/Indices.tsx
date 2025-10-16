@@ -1,4 +1,3 @@
-// pages/MarketIndexPage.tsx
 import { useState, useEffect } from "react";
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { StockSidebar } from "@/components/StockSidebar";
@@ -22,7 +21,7 @@ export interface StockDataset {
 // --- End Type Definitions ---
 
 
-const MarketIndexPage = () => {
+const Indices = () => {
   // State for the list of available indices (e.g., NSE All-Share, NSE 10-Share)
   const [availableIndices, setAvailableIndices] = useState<IndexSummary[]>([]);
   const [isLoadingIndices, setIsLoadingIndices] = useState(true); // For loading the metric cards
@@ -173,4 +172,4 @@ const MarketIndexPage = () => {
   );
 };
 
-export default MarketIndexPage;
+export default Indices;
