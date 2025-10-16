@@ -85,7 +85,8 @@ const getHistoricalAuthHeaders = async () => {
 };
 
 // --- GENERIC FETCH ---
-const fetchFromAPI = async (fullUrl: string, headers: Record<string, string> = {}) => {
+// Added a generic type T for better type inference with specific API responses
+const fetchFromAPI = async <T>(fullUrl: string, headers: Record<string, string> = {}): Promise<T | null> => {
   try {
     const response = await fetch(fullUrl, { headers });
     if (!response.ok) {
@@ -98,7 +99,7 @@ const fetchFromAPI = async (fullUrl: string, headers: Record<string, string> = {
       }
       throw new Error(`HTTP error! status: ${response.status} - ${response.statusText}`);
     }
-    return await response.json();
+    return await response.json() as T; // Type assertion
   } catch (error) {
     console.error(`Failed to fetch from ${fullUrl}:`, error);
     return null;
@@ -123,12 +124,37 @@ async function getLiveToken(): Promise<string> {
   return liveJwtToken!;
 }
 
-// ------------------ HISTORICAL DATA ------------------
+// ------------------ TYPE DEFINITIONS FOR HISTORICAL DATA & INDICES ------------------
+// Represents a single data point in a time series (e.g., for a chart)
+export interface DataPoint {
+  date: string; // ISO date string (e.g., "YYYY-MM-DD")
+  closing: number;
+}
+
+// Represents the summary of a single index as returned by the getIndices API
+export interface IndexSummary {
+  change_abs: number;
+  change_pct: number;
+  closing: number; // The sample data uses 'closing'
+  name: string;
+  performance: "Gainer" | "Loser" | "Neutral"; // Based on your sample data
+  // Note: The 'code' property was in your provided interface snippet but not in the sample data.
+  // If your actual API for `getIndices` does provide a 'code', add `code: string;` here.
+  // For `getHistoricalIndexData`, we assume `indexName` is the same as `IndexSummary.name`.
+}
+
+// Represents the full response structure from the getIndices API
+export interface IndicesApiResponse {
+  data: IndexSummary[]; // The array of index summaries
+  title: string;       // The title, e.g., "Major Indices on October 16, 2025"
+}
+
+// ------------------ HISTORICAL DATA API FUNCTIONS ------------------
 export const getMarketSummary = async (sortBy = "name", sortOrder = "asc") => {
   const endpoint = `/summary-table?sortBy=${sortBy}&sortOrder=${sortOrder}`;
   try {
     const headers = await getHistoricalAuthHeaders(); // Uses HISTORICAL token
-    const data = await fetchFromAPI(`${HISTORICAL_API_BASE_URL}${endpoint}`, headers);
+    const data = await fetchFromAPI<{rows: any[]}>(`${HISTORICAL_API_BASE_URL}${endpoint}`, headers); // Added type for data
     return data?.rows || [];
   } catch (error) {
     console.error("Failed to fetch market summary due to authentication error:", error);
@@ -140,7 +166,8 @@ export const getMarketMovers = async () => {
   const endpoint = "/chart-data?agg=D";
   try {
     const headers = await getHistoricalAuthHeaders(); // Uses HISTORICAL token
-    const data = await fetchFromAPI(`${HISTORICAL_API_BASE_URL}${endpoint}`, headers);
+    // Assuming data.data is an array of objects with performance, change_pct, etc.
+    const data = await fetchFromAPI<{ data: any[] }>(`${HISTORICAL_API_BASE_URL}${endpoint}`, headers); 
     if (!data || !data.data) return { gainers: [], losers: [] };
     const gainers = data.data.filter((d: any) => d.performance === "Gainer");
     const losers = data.data
@@ -153,16 +180,24 @@ export const getMarketMovers = async () => {
   }
 };
 
+// Assuming StockDataset and its DataPoint structure (with string dates)
+// This interface might live here or be imported from a shared types file
+export interface StockDataset {
+  code: string;
+  name: string; // Ensure this is present if getCompanyHistory returns it
+  dataPoints: DataPoint[]; // Using the DataPoint with string date
+}
+
 export const getCompanyHistory = async (
-  stocks: any[],
+  stocks: { code: string; name?: string }[], // Explicitly type stocks for better safety
   agg: "D" | "ME" | "YE"
-) => {
+): Promise<StockDataset[]> => { // Explicitly type the return
   if (!stocks || stocks.length === 0) return [];
   const companyCodes = stocks.map((stock) => stock.code).join(",");
   const endpoint = `/chart-data?agg=${agg}&companies=${companyCodes}`;
   try {
     const headers = await getHistoricalAuthHeaders(); // Uses HISTORICAL token
-    const data = await fetchFromAPI(`${HISTORICAL_API_BASE_URL}${endpoint}`, headers);
+    const data = await fetchFromAPI<{ datasets: StockDataset[] }>(`${HISTORICAL_API_BASE_URL}${endpoint}`, headers);
     return data?.datasets || [];
   } catch (error) {
     console.error("Failed to fetch company history due to authentication error:", error);
@@ -170,14 +205,38 @@ export const getCompanyHistory = async (
   }
 };
 
-export const getIndices = async () => {
-  const endpoint = `/indices`;
+
+// Fetches a summary of all major indices
+export const getIndices = async (): Promise<IndicesApiResponse | null> => {
+  const endpoint = `/indices`; // This endpoint should return the { data: [...], title: "..." } structure
   try {
-    const headers = await getHistoricalAuthHeaders(); // Uses HISTORICAL token
-    const data = await fetchFromAPI(`${HISTORICAL_API_BASE_URL}${endpoint}`, headers);
-    return data?.indices || [];
+    const headers = await getHistoricalAuthHeaders();
+    const apiResponse = await fetchFromAPI<IndicesApiResponse>(`${HISTORICAL_API_BASE_URL}${endpoint}`, headers);
+    return apiResponse; // Return the entire response object
   } catch (error) {
-    console.error("Failed to fetch indices due to authentication error:", error);
+    console.error("Failed to fetch indices summary:", error);
+    return null;
+  }
+};
+
+// Fetches historical time-series data for a specific index
+export const getHistoricalIndexData = async (
+  indexName: string, 
+  agg: "D" | "ME" | "YE" // Aggregation: Daily, Month-End, Year-End
+): Promise<DataPoint[]> => {
+  if (!indexName) {
+    console.warn("getHistoricalIndexData called without an indexName.");
+    return [];
+  }
+  // Ensure indexName is URL-encoded, especially if it contains spaces or special characters
+  const endpoint = `/index-data?agg=${agg}&index=${encodeURIComponent(indexName)}`;
+  try {
+    const headers = await getHistoricalAuthHeaders();
+    // Assuming this endpoint returns an object like { dataPoints: [...] }
+    const apiResponse = await fetchFromAPI<{ dataPoints: DataPoint[] }>(`${HISTORICAL_API_BASE_URL}${endpoint}`, headers);
+    return apiResponse?.dataPoints || [];
+  } catch (error) {
+    console.error(`Failed to fetch historical data for index ${indexName}:`, error);
     return [];
   }
 };
@@ -210,7 +269,7 @@ export const getLiveMarketData = async () => {
 export const getMarketStatus = async () => {
   try {
     const token = await getLiveToken(); // Uses LIVE token from api.softwarepulses.com
-    const data = await fetchFromAPI(MARKET_STATUS_URL, {
+    const data = await fetchFromAPI<{ status: string }>(MARKET_STATUS_URL, { // Added type for data
       Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
     });
