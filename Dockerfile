@@ -3,27 +3,25 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Copy package files
 COPY package*.json ./
-
-# Install dependencies (allow peer conflicts)
 RUN npm install --legacy-peer-deps
-
-# Copy source
 COPY . .
 
-# Build for production
+# Make sure build-time ENV variables are passed from Railway
+ARG VITE_LIVE_API_URL
+ARG VITE_LIVE_AUTH_URL
+ARG VITE_MARKET_STATUS_URL
+ARG VITE_API_BASE_URL
+
+ENV VITE_LIVE_API_URL=$VITE_LIVE_API_URL
+ENV VITE_LIVE_AUTH_URL=$VITE_LIVE_AUTH_URL
+ENV VITE_MARKET_STATUS_URL=$VITE_MARKET_STATUS_URL
+ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
+
 RUN npm run build
 
-
-# --- Stage 2: Serve with Nginx ---
+# --- Stage 2: Serve the app ---
 FROM nginx:alpine
-
 COPY --from=builder /app/dist /usr/share/nginx/html
-
 EXPOSE 8080
-
-# Optional: custom nginx.conf (for SPA routing)
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-
 CMD ["nginx", "-g", "daemon off;"]
