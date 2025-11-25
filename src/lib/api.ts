@@ -4,6 +4,7 @@ const HISTORICAL_API_BASE_URL = import.meta.env.VITE_API_BASE_URL as string;
 const LIVE_API_URL = import.meta.env.VITE_LIVE_API_URL as string;
 const LIVE_AUTH_URL = import.meta.env.VITE_LIVE_AUTH_URL as string;
 const MARKET_STATUS_URL = import.meta.env.VITE_MARKET_STATUS_URL as string;
+const PREDICTIONS_API_URL = import.meta.env.VITE_PREDICTIONS_API_URL as string;
 const HISTORICAL_AUTH_LOGIN_URL = `${HISTORICAL_API_BASE_URL}/auth/token`; // Token endpoint for YOUR Flask backend
 
 // In-memory cache for the HISTORICAL data JWT (from your Flask backend)
@@ -277,6 +278,47 @@ export const getMarketStatus = async () => {
   } catch (err) {
     console.error("Failed to fetch market status:", err);
     return "unknown";
+  }
+};
+
+// ------------------ ML PREDICTIONS API ------------------
+export interface Prediction {
+  symbol: string;
+  trading_date: string;
+  current_price: number;
+  predicted_close: number;
+  lstm_pred: number;
+  lstm_confidence: number;
+  rnn_pred: number;
+  rnn_confidence: number;
+  prophet_pred: number;
+  prophet_confidence: number;
+  ensemble_pred: number;
+  ensemble_confidence: number;
+  signal: 'BUY' | 'SELL' | 'HOLD';
+  prediction_time: string;
+}
+
+export interface PredictionsResponse {
+  timestamp: string;
+  count: number;
+  predictions: Prediction[];
+}
+
+export const getPredictions = async (symbol?: string) => {
+  try {
+    const token = await getLiveToken(); // Uses LIVE token from api.softwarepulses.com
+    const url = symbol ? `${PREDICTIONS_API_URL}/${symbol}` : PREDICTIONS_API_URL;
+
+    const data = await fetchFromAPI<PredictionsResponse>(url, {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    });
+
+    return data;
+  } catch (err) {
+    console.error("Failed to fetch predictions:", err);
+    return null;
   }
 };
 

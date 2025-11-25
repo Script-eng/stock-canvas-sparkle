@@ -3,8 +3,9 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Search, TrendingUp, TrendingDown, Activity, DollarSign, ArrowLeft } from 'lucide-react';
-import { getLiveMarketData, getMarketStatus } from '@/lib/api';
+import { getLiveMarketData, getMarketStatus, getPredictions } from '@/lib/api';
 import { ArrowUp, ArrowDown, Equal } from 'lucide-react';
 
 
@@ -22,6 +23,12 @@ interface LiveStock {
   avg_price?: number | null;
   volume?: number | null;
   trade_time?: string | null;
+  // ML Prediction data
+  prediction?: {
+    predicted_close: number;
+    confidence: number;
+    signal: 'BUY' | 'SELL' | 'HOLD';
+  };
 }
 
 // Helper functions
@@ -76,6 +83,34 @@ function MarketRow({ stock, onClick, isEven }: { stock: LiveStock; onClick: (s: 
       </td>
       <td className="px-4 py-3 text-foreground">{formatNumber(stock.prev_close, 2, true)}</td> {/* Use foreground */}
       <td className="px-4 py-3 text-foreground">{formatNumber(stock.latest_price, 2, true)}</td> {/* Use foreground */}
+
+      {/* Predicted Close Column - NEW */}
+      <td className="px-4 py-3">
+        {stock.prediction ? (
+          <div className="flex items-center gap-2">
+            <span className={`font-semibold ${
+              stock.prediction.signal === 'BUY' ? 'text-success' :
+              stock.prediction.signal === 'SELL' ? 'text-destructive' :
+              'text-muted-foreground'
+            }`}>
+              {formatNumber(stock.prediction.predicted_close, 2, true)}
+            </span>
+            <Badge
+              variant="outline"
+              className={`text-xs ${
+                stock.prediction.signal === 'BUY' ? 'border-success text-success' :
+                stock.prediction.signal === 'SELL' ? 'border-destructive text-destructive' :
+                'border-muted text-muted-foreground'
+              }`}
+            >
+              {stock.prediction.signal} {(stock.prediction.confidence * 100).toFixed(0)}%
+            </Badge>
+          </div>
+        ) : (
+          <span className="text-muted-foreground text-xs">--</span>
+        )}
+      </td>
+
       <td className={`px-4 py-3 font-medium ${priceColor}`}>
         <span className="flex items-center gap-1">
           {stock.change_direction === 'UP' && (
@@ -120,18 +155,44 @@ const LiveMarket: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response: any = await getLiveMarketData();
-        if (response && Array.isArray(response.data)) {
-          setLiveData(response.data);
-          setLastUpdated(new Date()); // Update last updated time on successful fetch
-        } else if (Array.isArray(response)) {
-          // Fallback if API response structure is sometimes directly an array
-          setLiveData(response as LiveStock[]);
-          setLastUpdated(new Date());
+        // Fetch both live data and predictions in parallel
+        const [liveResponse, predictionsResponse] = await Promise.all([
+          getLiveMarketData(),
+          getPredictions()
+        ]);
+
+        let stockData: LiveStock[] = [];
+
+        // Extract live data
+        if (liveResponse && typeof liveResponse === 'object' && 'data' in liveResponse && Array.isArray((liveResponse as any).data)) {
+          stockData = (liveResponse as any).data;
+        } else if (Array.isArray(liveResponse)) {
+          stockData = liveResponse as LiveStock[];
         }
+
+        // Merge predictions into live data
+        if (predictionsResponse && predictionsResponse.predictions) {
+          const predictionsMap = new Map(
+            predictionsResponse.predictions.map(pred => [
+              pred.symbol,
+              {
+                predicted_close: pred.predicted_close,
+                confidence: pred.ensemble_confidence,
+                signal: pred.signal
+              }
+            ])
+          );
+
+          stockData = stockData.map(stock => ({
+            ...stock,
+            prediction: predictionsMap.get(stock.symbol)
+          }));
+        }
+
+        setLiveData(stockData);
+        setLastUpdated(new Date());
       } catch (e) {
         console.error('Error fetching live market data:', e);
-        // Optionally set status to error or keep previous data
       } finally {
         setIsLoading(false);
       }
@@ -378,6 +439,7 @@ const LiveMarket: React.FC = () => {
                     <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Security</th> {/* Use muted-foreground */}
                     <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Prev Close</th> {/* Use muted-foreground */}
                     <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Latest Price</th> {/* Use muted-foreground */}
+                    <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Predicted Close</th> {/* NEW COLUMN */}
                     <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Change</th> {/* Use muted-foreground */}
                     <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Change %</th> {/* Use muted-foreground */}
                     <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">High</th> {/* Use muted-foreground */}
