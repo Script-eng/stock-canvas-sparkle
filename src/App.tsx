@@ -11,6 +11,7 @@ import Dashboard from "./pages/Dashboard";
 import Activity from "./pages/Activity";
 import LiveMarket from "./pages/LiveMarket";
 import Indices from "./pages/Indices";
+import Predictions from "./pages/Predictions";
 import WorkInProgress from "./pages/WorkInProgress";
 
 const queryClient = new QueryClient();
@@ -32,6 +33,7 @@ const App = () => (
           {/* <Route path="/portfolio" element={<Portfolio />} /> */}
           <Route path="/activity" element={<Activity />} />
           <Route path="/indices" element={<Indices />} />
+          <Route path="/predictions" element={<Predictions />} />
           <Route path="/404" element={<NotFound />} />
           {/* <Route path="*" element={<WorkInProgress />} /> */}
         </Routes>

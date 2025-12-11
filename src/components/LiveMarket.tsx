@@ -5,8 +5,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Search, TrendingUp, TrendingDown, Activity, DollarSign, ArrowLeft } from 'lucide-react';
-import { getLiveMarketData, getMarketStatus, getPredictions } from '@/lib/api';
+import { getLiveMarketData, getMarketStatus, getPredictions, type Prediction } from '@/lib/api';
 import { ArrowUp, ArrowDown, Equal } from 'lucide-react';
+import StockDetailModal from './StockDetailModal';
 
 
 // ------------------ Types ------------------
@@ -151,6 +152,31 @@ const LiveMarket: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortOrder, setSortOrder] = useState<'alpha' | 'volume' | 'gainers' | 'losers'>('alpha');
   const [selectedStock, setSelectedStock] = useState<LiveStock | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedStockPrediction, setSelectedStockPrediction] = useState<Prediction | null>(null);
+
+  const handleStockClick = async (stock: LiveStock) => {
+    setSelectedStock(stock);
+    setIsModalOpen(true);
+
+    // Fetch full prediction details for this stock
+    if (stock.prediction) {
+      try {
+        const response = await getPredictions(stock.symbol);
+        if (response && response.predictions && response.predictions.length > 0) {
+          setSelectedStockPrediction(response.predictions[0]);
+        }
+      } catch (err) {
+        console.error('Failed to fetch detailed prediction:', err);
+      }
+    }
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedStock(null);
+    setSelectedStockPrediction(null);
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -452,7 +478,7 @@ const LiveMarket: React.FC = () => {
                 <tbody>
                   {sortedAndFilteredData.map((stock, index) => (
                     // MarketRow component already updated
-                    <MarketRow key={stock.symbol} stock={stock} onClick={setSelectedStock} isEven={index % 2 === 0} />
+                    <MarketRow key={stock.symbol} stock={stock} onClick={handleStockClick} isEven={index % 2 === 0} />
                   ))}
                 </tbody>
               </table>
@@ -460,6 +486,14 @@ const LiveMarket: React.FC = () => {
           </Card>
         )}
       </div>
+
+      {/* Stock Detail Modal */}
+      <StockDetailModal
+        stock={selectedStock}
+        fullPrediction={selectedStockPrediction}
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+      />
     </div>
   );
 };

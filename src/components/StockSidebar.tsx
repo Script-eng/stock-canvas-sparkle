@@ -1,12 +1,13 @@
-import { 
-  TrendingUp, 
-  BarChart3, 
-  Wallet, 
-  PieChart, 
-  Activity, 
+import {
+  TrendingUp,
+  BarChart3,
+  Wallet,
+  PieChart,
+  Activity,
   Settings,
   User,
   LogOut,
+  Brain,
 } from "lucide-react"
 import { NavLink } from "react-router-dom" // Make sure to import NavLink
 import {
@@ -24,13 +25,14 @@ import {
 // Updated with the correct paths from our new router setup
 const navigationItems = [
   { title: "Live Market", url: "/live-market", icon: TrendingUp },
-  { title: "Markets", url: "/", icon: BarChart3 }, 
+  { title: "Markets", url: "/", icon: BarChart3 },
   { title: "Dashboard", url: "/dashboard", icon: BarChart3 },
   // { title: "Portfolio", url: "/portfolio", icon: Wallet },
   { title: "Analytics", url: "/analytics", icon: PieChart },
   { title: "Activity", url: "/activity", icon: Activity },
   // Indices
   { title: "Indices", url: "/indices", icon: BarChart3 },
+  { title: "Predictions", url: "/predictions", icon: Brain },
 ]
 
 

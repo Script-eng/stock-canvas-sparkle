@@ -289,8 +289,6 @@ export interface Prediction {
   predicted_close: number;
   lstm_pred: number;
   lstm_confidence: number;
-  rnn_pred: number;
-  rnn_confidence: number;
   prophet_pred: number;
   prophet_confidence: number;
   ensemble_pred: number;
