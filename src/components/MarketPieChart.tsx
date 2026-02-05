@@ -13,9 +13,7 @@ interface MarketPieChartProps {
   title?: string; // Make title optional and configurable
 }
 
-// NOTE: The parent component is responsible for fetching and processing the data
-// into the PieChartDataPoint format. For optimal performance, this calculation
-// should be done on the backend via an endpoint like `/api/market/sector-distribution`.
+
 
 export function MarketPieChart({ data, title = "Market Sector Allocation" }: MarketPieChartProps) {
   return (
