@@ -2,9 +2,8 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Search, TrendingUp, TrendingDown, Activity, DollarSign, ArrowLeft } from 'lucide-react';
+import { Search, TrendingUp, TrendingDown, Activity } from 'lucide-react';
 import { getLiveMarketData, getMarketStatus, getPredictions, type Prediction } from '@/lib/api';
 import { ArrowUp, ArrowDown, Equal } from 'lucide-react';
 import StockDetailModal from './StockDetailModal';
@@ -460,21 +459,19 @@ const LiveMarket: React.FC = () => {
           <Card className="overflow-hidden bg-card text-card-foreground border border-border shadow-sm"> {/* Use bg-card, text-card-foreground, border-border */}
             <div className="overflow-x-auto">
               <table className="min-w-full">
-                <thead className="bg-muted border-b border-border"> {/* Use bg-muted, border-border */}
-                  <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Security</th> {/* Use muted-foreground */}
-                    <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Prev Close</th> {/* Use muted-foreground */}
-                    <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Latest Price</th> {/* Use muted-foreground */}
-                    <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Predicted Close</th> {/* NEW COLUMN */}
-                    <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Change</th> {/* Use muted-foreground */}
-                    <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Change %</th> {/* Use muted-foreground */}
-                    <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">High</th> {/* Use muted-foreground */}
-                    <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Low</th> {/* Use muted-foreground */}
-                    <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Avg Price</th> {/* Use muted-foreground */}
-                    <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Volume</th> {/* Use muted-foreground */}
-                    <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Time</th> {/* Use muted-foreground */}
-                  </tr>
-                </thead>
+                <thead className="bg-muted border-b border-border"><tr>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Security</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Prev Close</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Latest Price</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Predicted Close</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Change</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Change %</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">High</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Low</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Avg Price</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Volume</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Time</th>
+                </tr></thead>
                 <tbody>
                   {sortedAndFilteredData.map((stock, index) => (
                     // MarketRow component already updated
